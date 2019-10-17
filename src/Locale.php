@@ -22,13 +22,6 @@ class Locale
 	protected $gamestrings;
 	
 	/**
-	 * Array of heroes in heroes-talent format, indexed by shortname
-	 *
-	 * @var array
-	 */
-	protected $heroes;
-	
-	/**
 	 * Load data from the the game strings file.
 	 *
 	 * @param array     $heroes           Parsed hero array
@@ -36,7 +29,8 @@ class Locale
 	 */
 	public function __construct(array $heroes, string $gamestringsPath)
 	{
-		$this->heroes      = $heroes;
+		parent::__construct($heroes);
+		
 		$this->gamestrings = $this->loadStrings($gamestringsPath);
 	}
 

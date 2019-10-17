@@ -13,14 +13,7 @@
  * Applies manual data overrides
  */
 class Replace
-{
-	/**
-	 * Array of heroes in heroes-talent format, indexed by shortname
-	 *
-	 * @var array
-	 */
-	protected $heroes;
-	
+{	
 	protected $extras = [
 		'abathur'     => [1,  '0.1.1.00000'],
 		'alarak'      => [2,  '1.20.0.46158'],
@@ -118,7 +111,7 @@ class Replace
 	 */
 	public function __construct($heroes)
 	{
-		$this->heroes = $heroes;
+		parent::__construct($heroes);
 	}
 
 	/**
@@ -195,14 +188,4 @@ class Replace
 		
 		return $this;
 	}
-
-	/**
-	 * Return the array of formatted data for all heroes
-	 *
-	 * @return array
-	 */
-	public function getHeroes(): array
-	{
-		return $this->heroes;
-	}	
 }

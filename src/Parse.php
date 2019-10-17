@@ -7,12 +7,14 @@
  * 
  */
 
+require 'Base.php';
+
 /**
  * Class Parse
  *
  * Parses data from herodata and gamestrings files into the heroes-talent format
  */
-class Parse
+class Parse extends Base
 {
 	/**
 	 * Array of hero data from HDP file.
@@ -22,19 +24,14 @@ class Parse
 	protected $herodata;
 	
 	/**
-	 * Array of heroes in heroes-talent format, indexed by shortname
-	 *
-	 * @var array
-	 */
-	protected $heroes = [];
-	
-	/**
 	 * Load data from the hero data input file.
 	 *
 	 * @param string    $herodataPath     Path to a valid heroesdata file
 	 */
 	public function __construct($herodataPath)
 	{
+		parent::__construct([]);
+		
 		$this->herodata = $this->loadData($herodataPath);
 	}
 
@@ -77,16 +74,6 @@ class Parse
 		echo 'Loaded ' . count($array) . ' heroes from ' . basename($path) . PHP_EOL;
 		
 		return $array;
-	}
-
-	/**
-	 * Return the array of formatted data for all heroes
-	 *
-	 * @return $this
-	 */
-	public function getHeroes(): array
-	{
-		return $this->heroes;
 	}
 
 	/**
