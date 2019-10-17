@@ -12,7 +12,7 @@
  *
  * Applies manual data overrides
  */
-class Replace
+class Replace extends Base
 {	
 	protected $extras = [
 		'abathur'     => [1,  '0.1.1.00000'],

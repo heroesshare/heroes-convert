@@ -12,7 +12,7 @@
  *
  * Add locale-specific names and descriptions to parsed hero data
  */
-class Locale
+class Locale extends Base
 {
 	/**
 	 * Array of unit strings from HDP file.
@@ -26,7 +26,7 @@ class Locale
 	 *
 	 * @var array
 	 */
-	protected $abilityStrings;
+	protected $abiltalentStrings;
 	
 	/**
 	 * Load data from the the game strings file.
@@ -74,11 +74,11 @@ class Locale
 		{
 			throw new \RuntimeException('Invalid gameStrings file: ' . $path);
 		}
-		
-		$this->heroStrings    = $array['meta']['unit'];
-		$this->abilityStrings = $array['meta']['abiltalent'];
-		
-		echo 'Gamestrings loaded: version ' . $array['meta']['version'] . ', locale ' . $array['meta']['locale'] . PHP_EOL;
+
+		$this->heroStrings       = $array['gamestrings']['unit'];
+		$this->abiltalentStrings = $array['gamestrings']['abiltalent'];
+
+		$this->logMessage('Gamestrings loaded: version ' . $array['meta']['version'] . ', locale ' . $array['meta']['locale']);
 
 		unset($array);
 	}
@@ -94,6 +94,7 @@ class Locale
 		
 		$this->addHeroStrings();
 		$this->addAbilityStrings();
+		$this->addAbiltalentDescriptions();
 		
 		return $this;
 	}
@@ -105,16 +106,13 @@ class Locale
 	 */
 	protected function addHeroStrings()
 	{
-		// Get each set of strings
-		$strings['description']  = $this->heroDescriptions($this->heroStrings['description']);
-		
-		// Free up some memory
-		unset($this->abilityStrings);
-		
+		// Get descriptions
+		//$strings['description']  = $this->heroDescriptions($this->heroStrings['description']);
+				
 		// Traverse heroes and set matching strings
 		foreach ($this->heroes as $shortname => $hero)
 		{
-			foreach (['name', 'type', 'role', 'expandedRole'] as $key)
+			foreach (['name', 'type', 'role', 'expandedRole', 'description'] as $key)
 			{
 				if (isset($this->heroStrings[$key][$shortname]))
 				{
@@ -127,7 +125,9 @@ class Locale
 				$this->heroes[$shortname]['description'] = $strings['description'][$shortname];
 			}
 		}
-		unset($strings);
+		
+		// Free up some memory
+		unset($this->heroStrings);
 	}
 
 	/**
@@ -137,21 +137,22 @@ class Locale
 	 */
 	protected function addAbilityStrings()
 	{
+		$strings = [];
+
 		// Get each set of strings
-		$strings['name']        = $this->abilityNames($this->abilityStrings['name']);
-		$strings['cooldown']    = $this->abilityCooldowns($this->abilityStrings['cooldown']);
-		$strings['manaCost']    = $this->abilityManaCosts($this->abilityStrings['energy']);
-		$strings['description'] = $this->abilityDescriptions($this->abilityStrings['full']);
-		
-		// Free up some memory
-		unset($this->abilityStrings);
-		
+		$strings['name'] = $this->abilityNames($this->abiltalentStrings['name']);
+		unset($this->abiltalentStrings['name']);
+		$strings['cooldown'] = $this->abilityCooldowns($this->abiltalentStrings['cooldown']);
+		unset($this->abiltalentStrings['cooldown']);
+		$strings['manaCost'] = $this->abilityManaCosts($this->abiltalentStrings['energy']);
+		unset($this->abiltalentStrings['energy']);
+
 		// Traverse heroes for each ability and set matching strings
 		foreach ($this->heroes as $shortname => $hero)
 		{
 			foreach ($hero['abilities'] as $i => $ability)
 			{
-				foreach (['name', 'cooldown', 'manaCost', 'description'] as $key)
+				foreach (['name', 'cooldown', 'manaCost'] as $key)
 				{
 					if (isset($strings[$key][$ability['uid']]))
 					{
@@ -177,7 +178,7 @@ class Locale
 		foreach ($names as $id => $name)
 		{
 			// Hash the UID
-			$uid = $this->abilityUid($id);
+			$uid = $this->abiltalentUid($id);
 			
 			$return[$uid] = $name;
 		}
@@ -199,11 +200,11 @@ class Locale
 		foreach ($cooldowns as $id => $cooldown)
 		{
 			// Hash the UID
-			$uid = $this->abilityUid($id);
+			$uid = $this->abiltalentUid($id);
 			
 			// Strip everything but the number of seconds
-			$cooldown = preg_filter('#\d+(\.\d)?#', $cooldown);
-			
+			$cooldown = filter_var($cooldown, FILTER_SANITIZE_NUMBER_FLOAT);
+
 			$return[$uid] = $cooldown;
 		}
 		
@@ -224,13 +225,13 @@ class Locale
 		foreach ($costs as $id => $cost)
 		{
 			// Hash the UID
-			$uid = $this->abilityUid($id);
+			$uid = $this->abiltalentUid($id);
 			
 			// Find the space before the actual cost
 			$pos = strrpos($cost, ' ');
 			
 			// Lop everything before and trim the final "</s>"
-			$cost = substr($cost, $pos, -4);
+			$cost = substr($cost, $pos + 1, -4);
 						
 			$return[$uid] = $cost;
 		}
@@ -239,43 +240,85 @@ class Locale
 	}
 
 	/**
-	 * Fetch ability descriptions by their UID
-	 *
-	 * @param array   $cooldowns  HDP description gamestrings
+	 * Add descriptions to abilities and talents
 	 *
 	 * @return array
 	 */
-	protected function abilityDescriptions(array $descriptions): array
+	protected function addAbiltalentDescriptions()
+	{
+		// Get the descriptions
+		$descriptions = $this->abiltalentDescriptions($this->abiltalentStrings['full']);
+
+		// Free up some memory
+		unset($this->abiltalentStrings);
+		
+		// Traverse heroes and set matching strings
+		foreach ($this->heroes as $shortname => $hero)
+		{
+			// Check each ability
+			foreach ($hero['abilities'] as $i => $ability)
+			{
+				if (isset($descriptions[$ability['uid']]))
+				{
+					$this->heroes[$shortname]['abilities'][$i]['description'] = $descriptions[$ability['uid']];
+				}
+			}
+			
+			// Check each talent
+			foreach ($hero['talents'] as $level => $talents)
+			{
+				foreach ($talents as $i => $talent)
+				{
+					if (isset($descriptions[$talent['uid']]))
+					{
+						$this->heroes[$shortname]['talents'][$level][$i]['description'] = $descriptions[$talent['uid']];
+					}
+				}
+			}
+		}
+		unset($strings);
+	}
+
+	/**
+	 * Fetch ability & talent descriptions by their UID
+	 *
+	 * Descriptions contain hypertext, e.g.:
+	 *  Alarak targets an area and channels for <c val=\"bfd4fd\">1</c> second,
+	 *  becoming Protected and Unstoppable. After, if he took damage from an enemy
+	 *  Hero, he sends a shockwave that deals <c val=\"bfd4fd\">275~~0.04~~</c> damage.
+	 *
+	 * @param array   $descriptions  HDP abiltalent description gamestrings
+	 *
+	 * @return array
+	 */
+	protected function abiltalentDescriptions(array $descriptions): array
 	{
 		$return = [];
-		
+
 		foreach ($descriptions as $id => $description)
 		{
 			// Hash the UID
-			$uid = $this->abilityUid($id);
+			$uid = $this->abiltalentUid($id);
 			
-/*
-"Alarak targets an area and channels for <c val=\"bfd4fd\">1</c> second,
-becoming Protected and Unstoppable. After, if he took damage from an enemy
-Hero, he sends a shockwave that deals <c val=\"bfd4fd\">275~~0.04~~</c> damage.",
-*/
+			// Expand scaling values, e.g. "~~0.04~~" => "(+4% per level)"
+			$description = preg_replace_callback('#~~0\.0\d+~~#',
+				function ($matches) {
+					$num = (float)trim($matches[0], '~') * 100;
+					return " (+{$num}% per level)";
+				},
+				$description
+			);
+
+			// Newline tags become spaces
+			$description = str_replace('<n/>', ' ', $description);
+
+			// Remove tags
+			$description = preg_replace('#<.+?>#', '', $description);
 
 			$return[$uid] = $description;
 		}
 		
 		return $return;		
 	}
-	
-	/**
-	 * Computes a unique hash for an ability from an HDP ID string
-	 *
-	 * @param array   $raw  Raw HDP ability
-	 *
-	 * @return string  Ability UID
-	 */
-	public function abilityUid(string $id): string
-	{
-		return substr(md5($str), 0, 7);
-	}   
 	
 }

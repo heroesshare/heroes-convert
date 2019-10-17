@@ -71,7 +71,7 @@ class Parse extends Base
 			throw new \RuntimeException('Invalid heroData file: ' . $path);
 		}
 		
-		echo 'Loaded ' . count($array) . ' heroes from ' . basename($path) . PHP_EOL;
+		$this->logMessage('Loaded ' . count($array) . ' heroes from ' . basename($path));
 		
 		return $array;
 	}
@@ -242,7 +242,7 @@ class Parse extends Base
 	{
 		// Start with basic info
 		$ability = [
-			'uid'  => $this->abilityUid($raw),
+			'uid'  => $this->uidFromRaw($raw),
 			'icon' => strtolower(str_replace("'", '', $raw['icon'])), // strip single quotes like Kel'thuzad
 		];
 
@@ -297,13 +297,13 @@ class Parse extends Base
 	}
 	
 	/**
-	 * Computes a unique hash for an ability from a raw HDP ability
+	 * Computes a unique hash for an ability or talent from a raw HDP array
 	 *
-	 * @param array   $raw  Raw HDP ability
+	 * @param array   $raw  Raw HDP array
 	 *
-	 * @return string  Ability UID
+	 * @return string  UID
 	 */
-	public function abilityUid(array $raw): string
+	public function uidFromRaw(array $raw): string
 	{
 		$keys = ['nameId', 'buttonId', 'abilityType'];
 		$values = [];
@@ -316,7 +316,7 @@ class Parse extends Base
 
 		$str = implode('|', $values);
 		
-		return substr(md5($str), 0, 7);
+		return $this->abiltalentUid($str);
 	}   
 
 	/**
@@ -433,6 +433,7 @@ class Parse extends Base
 	{
 		// Start with basic info
 		$talent = [
+			'uid'          => $this->uidFromRaw($raw),
 			'tooltipId'    => $raw['buttonId'],
 			'talentTreeId' => $raw['nameId'],
 			'icon'         => strtolower(str_replace("'", '', $raw['icon'])), // replace single quotes in filename

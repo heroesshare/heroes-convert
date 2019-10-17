@@ -24,14 +24,15 @@ if (empty($argv[1]) || empty($argv[2]))
 
 // Load the classes
 require 'Parse.php';
+require 'Locale.php';
 require 'Replace.php';
 
 // Parse hero data
 $parse  = new Parse($argv[1]);
 $heroes = $parse->run()->getHeroes();
 unset($parse);
-var_dump($heroes); exit;
 
+/*
 // Apply filters to remove unwanted data
 $filter = new Filter($heroes);
 $heroes = $filter->run()->getHeroes();
@@ -41,11 +42,13 @@ unset($filter);
 $connect = new Connect($heroes);
 $heroes  = $connect->run()->getHeroes();
 unset($link);
+*/
 
 // Add localized game strings
 $locale = new Locale($heroes, $argv[2]);
 $heroes = $locale->run()->getHeroes();
 unset($locale);
+var_dump($heroes); exit;
 
 // Replace data with manual overrides
 $replace = new Replace($heroes);
