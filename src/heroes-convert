@@ -1,0 +1,47 @@
+#!/usr/bin/env php
+<?php
+/*
+ * heroes-convert
+ *
+ * Convert HeroesDataParser to heroes-talents, for Heroes of the Storm
+ * https://github.com/tattersoftware/heroes-convert
+ * 
+ */
+
+use Heroes\Convert\Parse;
+use Heroes\Convert\Locale;
+use Heroes\Convert\Filter;
+use Heroes\Convert\Replace;
+
+// Verify proper usage
+$script = $argv[0];
+
+if (empty($argv[1]) || empty($argv[2]))
+{
+	echo 'Usage: ./heroes-convert herodata_localized.json gamestrings_enus.json [outputDirectory]' . PHP_EOL;
+	return;
+}
+
+// Load the classes
+require 'Parse.php';
+require 'Replace.php';
+
+// Parse hero data
+$parse  = new Parse($argv[1]);
+$heroes = $parse->run()->getHeroes();
+unset($parse);
+var_dump($heroes); exit;
+
+// Add localized game strings
+$locale = new Locale($heroes, $argv[2]);
+$heroes = $locale->run()->getHeroes();
+unset($locale);
+
+// Apply filters to remove unwanted data
+$filter = new Filter($heroes);
+$heroes = $filter->run()->getHeroes();
+
+// Replace data with manual overrides
+$replace = new Replace($heroes);
+$heroes  = $replace->run()->getHeroes();
+
