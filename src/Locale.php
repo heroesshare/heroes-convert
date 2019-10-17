@@ -15,11 +15,18 @@
 class Locale
 {
 	/**
-	 * Array of game strings from HDP file.
+	 * Array of unit strings from HDP file.
 	 *
 	 * @var array
 	 */
-	protected $gamestrings;
+	protected $heroStrings;
+
+	/**
+	 * Array of ability/talent strings from HDP file.
+	 *
+	 * @var array
+	 */
+	protected $abilityStrings;
 	
 	/**
 	 * Load data from the the game strings file.
@@ -31,17 +38,15 @@ class Locale
 	{
 		parent::__construct($heroes);
 		
-		$this->gamestrings = $this->loadStrings($gamestringsPath);
+		$this->loadStrings($gamestringsPath);
 	}
 
 	/**
 	 * Verify a file path and returns the parsed JSON contents as an array
 	 *
 	 * @param string    $path Path to a JSON file
-	 *
-	 * @return array
 	 */
-	protected function loadStrings(string $path): array
+	protected function loadStrings(string $path)
 	{
 		// Verify the file
 		if (! is_file($path))
@@ -70,19 +75,12 @@ class Locale
 			throw new \RuntimeException('Invalid gameStrings file: ' . $path);
 		}
 		
+		$this->heroStrings    = $array['meta']['unit'];
+		$this->abilityStrings = $array['meta']['abiltalent'];
+		
 		echo 'Gamestrings loaded: version ' . $array['meta']['version'] . ', locale ' . $array['meta']['locale'] . PHP_EOL;
 
-		return $array;
-	}
-
-	/**
-	 * Return the array of formatted data for all heroes
-	 *
-	 * @return $this
-	 */
-	public function getHeroes(): array
-	{
-		return $this->heroes;
+		unset($array);
 	}
 
 	/**
@@ -94,24 +92,75 @@ class Locale
 	{
 		$strings = [];
 		
+		$this->addHeroStrings();
 		$this->addAbilityStrings();
 		
 		return $this;
 	}
 
 	/**
-	 * Add relevant ability strings to each ability
+	 * Add relevant strings to each hero
+	 *
+	 * @return array
+	 */
+	protected function addHeroStrings()
+	{
+		// Get each set of strings
+		$strings['description']  = $this->heroDescriptions($this->heroStrings['description']);
+		
+		// Free up some memory
+		unset($this->abilityStrings);
+		
+		// Traverse heroes and set matching strings
+		foreach ($this->heroes as $shortname => $hero)
+		{
+			foreach (['name', 'type', 'role', 'expandedRole'] as $key)
+			{
+				if (isset($this->heroStrings[$key][$shortname]))
+				{
+					$this->heroes[$shortname][$key] = $this->heroStrings[$key][$shortname];
+				}
+			}
+			
+			if (isset($strings['description'][$shortname]))
+			{
+				$this->heroes[$shortname]['description'] = $strings['description'][$shortname];
+			}
+		}
+		unset($strings);
+	}
+
+	/**
+	 * Add relevant strings to each ability
 	 *
 	 * @return array
 	 */
 	protected function addAbilityStrings()
 	{
 		// Get each set of strings
-		$strings['names']        = $this->abilityNames($this->gamestrings['abiltalent']['name']);
-		$strings['cooldowns']    = $this->abilityCooldowns($this->gamestrings['abiltalent']['cooldown']);
-		$strings['manaCosts']    = $this->abilityManaCosts($this->gamestrings['abiltalent']['energy']);
-		$strings['descriptions'] = $this->abilityDescriptions($this->gamestrings['abiltalent']['full']);
-	
+		$strings['name']        = $this->abilityNames($this->abilityStrings['name']);
+		$strings['cooldown']    = $this->abilityCooldowns($this->abilityStrings['cooldown']);
+		$strings['manaCost']    = $this->abilityManaCosts($this->abilityStrings['energy']);
+		$strings['description'] = $this->abilityDescriptions($this->abilityStrings['full']);
+		
+		// Free up some memory
+		unset($this->abilityStrings);
+		
+		// Traverse heroes for each ability and set matching strings
+		foreach ($this->heroes as $shortname => $hero)
+		{
+			foreach ($hero['abilities'] as $i => $ability)
+			{
+				foreach (['name', 'cooldown', 'manaCost', 'description'] as $key)
+				{
+					if (isset($strings[$key][$ability['uid']]))
+					{
+						$this->heroes[$shortname]['abilities'][$i][$key] = $strings[$key][$ability['uid']];
+					}
+				}
+			}
+		}
+		unset($strings);
 	}
 
 	/**

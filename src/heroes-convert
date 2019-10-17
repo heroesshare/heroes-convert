@@ -32,14 +32,20 @@ $heroes = $parse->run()->getHeroes();
 unset($parse);
 var_dump($heroes); exit;
 
+// Apply filters to remove unwanted data
+$filter = new Filter($heroes);
+$heroes = $filter->run()->getHeroes();
+unset($filter);
+
+// Link talents to their abilities
+$connect = new Connect($heroes);
+$heroes  = $connect->run()->getHeroes();
+unset($link);
+
 // Add localized game strings
 $locale = new Locale($heroes, $argv[2]);
 $heroes = $locale->run()->getHeroes();
 unset($locale);
-
-// Apply filters to remove unwanted data
-$filter = new Filter($heroes);
-$heroes = $filter->run()->getHeroes();
 
 // Replace data with manual overrides
 $replace = new Replace($heroes);
