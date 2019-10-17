@@ -14,12 +14,12 @@ require_once 'Base.php';
  *
  * Removes entries not relevant to heroes-talents
  */
-class Filter
+class Filter extends Base
 {	
 	/**
 	 * Store the heroes.
 	 *
-	 * @param array     $heroes           Parsed hero array
+	 * @param array  $heroes  Parsed hero array
 	 */
 	public function __construct(array $heroes)
 	{

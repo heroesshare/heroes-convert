@@ -66,7 +66,7 @@ class Locale extends Base
 		// Decode JSON data
 		$array = json_decode($data, true);
 		unset($data);
-		if ($array === null)
+		if ($array === false)
 		{
 			throw new \RuntimeException('Error #' . json_last_error() . ' parsing ' . $path . ': ' . json_last_error_msg());
 		}
@@ -116,9 +116,9 @@ class Locale extends Base
 		{
 			foreach (['name', 'type', 'role', 'expandedRole', 'description'] as $key)
 			{
-				if (isset($this->heroStrings[$key][$shortname]))
+				if (isset($this->heroStrings[strtolower($key)][$hero['cHeroId']]))
 				{
-					$this->heroes[$shortname][$key] = $this->heroStrings[$key][$shortname];
+					$this->heroes[$shortname][$key] = $this->heroStrings[strtolower($key)][$hero['cHeroId']];
 				}
 			}
 			

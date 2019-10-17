@@ -24,16 +24,6 @@ class Connect extends Base
 	public $linkKey = 'uid';
 	
 	/**
-	 * Store the heroes.
-	 *
-	 * @param array  $heroes  Parsed hero array
-	 */
-	public function __construct(array $heroes)
-	{
-		parent::__construct($heroes);
-	}
-
-	/**
 	 * Update each talent's abilityLinks to heroes-talent format
 	 *
 	 * @return $this

@@ -60,7 +60,7 @@ class Parse extends Base
 		// Decode JSON data
 		$array = json_decode($data, true);
 		unset($data);
-		if ($array === null)
+		if ($array === false)
 		{
 			throw new \RuntimeException('Error #' . json_last_error() . ' parsing ' . $path . ': ' . json_last_error_msg());
 		}
@@ -113,13 +113,10 @@ class Parse extends Base
 		// Start with the identity info
 		$hero = [
 			'shortName'    => strtolower($raw['hyperlinkId']),
+			'hyperlinkId'  => $raw['hyperlinkId'],
 			'attributeId'  => $raw['attributeId'],
 			'cHeroId'      => $raw['cHeroId'],
 			'cUnitId'      => $raw['unitId'],
-			//'name'         => $raw['name'],
-			//'role'         => reset($raw['roles']),
-			//'expandedRole' => $raw['expandedRole'],
-			//'type'         => $raw['type'],
 			'releaseDate'  => $raw['releaseDate'],
 		];
 		

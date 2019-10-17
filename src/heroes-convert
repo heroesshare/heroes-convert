@@ -26,6 +26,7 @@ require 'Connect.php';
 require 'Filter.php';
 require 'Intervene.php';
 require 'Locale.php';
+require 'Output.php';
 require 'Parse.php';
 
 // Parse hero data
@@ -49,10 +50,19 @@ unset($connect);
 $locale = new Locale($heroes, $argv[2]);
 $heroes = $locale->run()->getHeroes();
 unset($locale);
-var_dump($heroes); exit;
 
 // Implement any manual interventions
 $intervene = new Intervene($heroes);
 $heroes    = $intervene->run()->getHeroes();
+unset($intervene);
 
-var_dump($heroes);
+// Write out the files
+$output = new Output($heroes);
+unset($heroes);
+
+if (! empty($argv[3]))
+{
+	$output->setDirectory($argv[3]);
+}
+
+$output->run();
