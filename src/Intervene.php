@@ -7,12 +7,14 @@
  * 
  */
 
+require_once 'Base.php';
+
 /**
  * Class Replace
  *
  * Applies manual data overrides
  */
-class Replace extends Base
+class Intervene extends Base
 {	
 	protected $extras = [
 		'abathur'     => [1,  '0.1.1.00000'],

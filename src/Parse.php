@@ -7,7 +7,7 @@
  * 
  */
 
-require 'Base.php';
+require_once 'Base.php';
 
 /**
  * Class Parse
@@ -127,7 +127,7 @@ class Parse extends Base
 		$hero['icon'] = $hero['shortName'] . '.png';
 		
 		// Add tags
-		$hero['tags'] = $raw['descriptors'];
+		$hero['tags'] = $raw['descriptors'] ?? [];
 		
 		// Parse and add abilities
 		$hero['abilities'] = $this->addAbilitiesExtras($hero['cHeroId'], $this->abilitiesFromRaw($raw));
@@ -242,43 +242,22 @@ class Parse extends Base
 	{
 		// Start with basic info
 		$ability = [
-			'uid'  => $this->uidFromRaw($raw),
-			'icon' => strtolower(str_replace("'", '', $raw['icon'])), // strip single quotes like Kel'thuzad
+			'uid'    => $this->uidFromRaw($raw),
+			'nameId' => $raw['nameId'], // used for abilityLinks
+			'icon'   => strtolower(str_replace("'", '', $raw['icon'])), // strip single quotes like Kel'thuzad
+			'type'   => strtolower($raw['type']),
 		];
-
-		// Determine the type
-		$ability['type'] = isset($raw['herounit']) || isset($raw['subunit']) ? 'subunit' : strtolower($raw['type']);
-
-/*
-
-			//'name'        => str_replace("\u{2019}", "'", $raw['name']),  // standardize single quotes
-			//'description' => str_replace("   ", "  ", $raw['fullTooltip']),
-
-		// Conditional mana cost
-		if (isset($raw['energyTooltip']))
+		
+		// Conditional metadata
+		if (isset($raw['subunit']))
 		{
-			$ability['mana_cost'] = preg_filter('/[^0-9\.]/', '', $raw['energyTooltip']);
+			$ability['subunit'] = $raw['subunit'];
+		}
+		if (isset($raw['herounit']))
+		{
+			$ability['herounit'] = $raw['herounit'];
+		}
 		
-			// check for mana per second
-			if (strpos($raw['energyTooltip'], "per second")):
-				$ability['mana_per_second'] = 1;
-			endif;
-		else:
-			$ability['mana_cost'] = NULL;
-			$ability['mana_per_second'] = 0;
-		endif;
-		
-		// Condition cooldown
-		if (isset($raw['cooldownTooltip'])):
-			$ability['cooldown'] = preg_filter('/[^0-9\.]/', '', $raw['cooldownTooltip'] );
-		endif;
-		
-		// Check for mount abilities that shouldn't have a hotkey ('Z')
-		if ($ability['type'] == 'mount' && empty($ability['cooldown'])):
-			unset($ability['hotkey']);
-		endif;
-*/		
-
 		// Use abilityType to set the hotkey
 		if ($raw['abilityType'] == 'Heroic')
 		{
@@ -310,6 +289,11 @@ class Parse extends Base
 		
 		foreach ($keys as $key)
 		{
+			if (! isset($raw[$key]))
+			{
+				var_dump($raw);
+				die();
+			}
 			$values[] = $raw[$key];
 		}
 		$values[] = empty($raw['isPassive']) ? 'False' : 'True';
@@ -343,7 +327,7 @@ class Parse extends Base
 				$return[] = $this->abilityFromRaw($raw);
 			}
 		}
-		
+
 		return $return;
 	}
 	
@@ -388,7 +372,7 @@ class Parse extends Base
 				
 				if (isset($unit['subAbilities']))
 				{
-					$return = array_merge($return, $this->parseSubAbilities($unit['subAbilities'], $name));
+					$return = array_merge($return, $this->parseSubAbilities(reset($unit['subAbilities']), $name));
 				}
 			}
 		}
@@ -441,45 +425,16 @@ class Parse extends Base
 			'sort'         => $raw['sort'],
 		];
 
-/*
-{
-  "nameId": "ArtanisTwinBladesAmateurOpponent",
-  "buttonId": "ArtanisTwinBladesAmateurOpponentTalent",
-  "icon": "storm_ui_icon_artanis_doubleslash_var1.png",
-  "abilityType": "W",
-  "sort": 2,
-  "abilityTalentLinkIds": [
-	"ArtanisTwinBladesPrimed",
-	"ArtanisTwinBlades"
-  ]
-},
-
-{
-	"tooltipId": "ArtanisTwinBladesAmateurOpponentTalent",
-	"talentTreeId": "ArtanisTwinBladesAmateurOpponent",
-	"name": "Amateur Opponent",
-	"description": "Twin Blades attacks deal 150% bonus damage to non-Heroes.",
-	"icon": "storm_ui_icon_artanis_doubleslash_var1.png",
-	"type": "W",
-	"sort": 2,
-	"abilityId": "Artanis|W1",
-	"abilityLinks": [
-	  "Artanis|W1"
-	]
-},
-
-			"name" => trim(str_replace("\u{2019}", "'", $talent['name'])),  // standardize single quotes
-			"description" => str_replace("   ", "  ", $talent['fullTooltip']),
-			
-		// conditional cooldown
-		if (isset($talent['cooldownTooltip'])):
-			$row["cooldown"] = preg_filter('/[^0-9\.]/', "", $talent['cooldownTooltip'] );
-		endif;
-*/
 		// Conditional quest
 		if (! empty($raw['isQuest']))
 		{
 			$talent['isQuest'] = true;
+		}
+		
+		// Conditional links
+		if (isset($raw['abilityTalentLinkIds']))
+		{
+			$talent['abilityLinks'] = $raw['abilityTalentLinkIds'];
 		}
 
 		return $talent;

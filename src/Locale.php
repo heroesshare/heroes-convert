@@ -7,6 +7,8 @@
  * 
  */
 
+require_once 'Base.php';
+
 /**
  * Class Locale
  *
