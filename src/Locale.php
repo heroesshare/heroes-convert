@@ -239,7 +239,7 @@ class Locale extends Base
 			// Remove tags
 			$description = preg_replace('#<.+?>#', '', $description);
 
-			$return[$uid] = $description;
+			$return[$uid] = trim(str_replace('   ', '  ', $description));
 		}
 		
 		return $return;		

@@ -127,7 +127,7 @@ class Parse extends Base
 		$hero['tags'] = $raw['descriptors'] ?? [];
 		
 		// Parse and add abilities
-		$hero['abilities'] = $this->addAbilitiesExtras($hero['cHeroId'], $this->abilitiesFromRaw($raw));
+		$hero['abilities'] = $this->addAbilitiesExtras($hero['hyperlinkId'], $this->abilitiesFromRaw($raw));
 		
 		// Parse and add talents
 		$hero['talents'] = $this->talentsFromRaw($raw);
@@ -138,12 +138,12 @@ class Parse extends Base
 	/**
 	 * Set hotkeys and ability codes for a hero's abilities
 	 *
-	 * @param string  $cHeroId    The hero's cHeroId
-	 * @param array   $abilities  Array of heroes-talents abilities
+	 * @param string  $hyperlinkid  The hero's hyperlinkId
+	 * @param array   $abilities    Array of heroes-talents abilities
 	 *
 	 * @return array  Updated abilities
 	 */
-	protected function addAbilitiesExtras(string $cHeroId, array $abilities): array
+	protected function addAbilitiesExtras(string $hyperlinkId, array $abilities): array
 	{
 		$return = [];
 		
@@ -193,7 +193,7 @@ class Parse extends Base
 
 			// Set the code and abilityId
 			$ability['code']      = $code . $hotkeys[$code];
-			$ability['abilityId'] = $cHeroId . '|' . $ability['code'];
+			$ability['abilityId'] = $hyperlinkId . '|' . $ability['code'];
 			
 			$return[] = $ability;
 		}

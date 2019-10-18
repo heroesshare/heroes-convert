@@ -169,9 +169,19 @@ class Intervene extends Base
 			// Update the collection
 			$this->heroes[$shortname] = $hero;
 		}
+
+		// Set TLV tags
+		$this->heroes['lostvikings']['tags'] = [
+			'Escaper',
+			'Helper',
+			'Overconfident',
+			'RoleAutoAttacker',
+			'RoleTank',
+			'WaveClearer'
+		],
+
 /*
-		
-		// OVERRIDES
+		// A few overrides from the old version to look through at some point...
 		
 		// Nasty Vikings...
 		if (strpos($ability['shortname'], 'LostViking') !== false && $ability['type'] == 'subunit')

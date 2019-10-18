@@ -115,6 +115,6 @@ class Base
 	 */
 	public function abiltalentUid(string $id): string
 	{
-		return substr(md5($id), 0, 5);
+		return substr(md5($id), 0, 6);
 	}
 }

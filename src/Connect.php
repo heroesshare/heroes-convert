@@ -71,7 +71,7 @@ class Connect extends Base
 			{
 				foreach ($talents as $i => $talent)
 				{
-					$abilityId = $talent['type'] == 'Passive' ? $hero['hyperlinkId'] . '|Passive' : null;
+					$abilityId = in_array($talent['type'], ['Active', 'Passive']) ? $hero['hyperlinkId'] . '|' . $talent['type'] : null;
 					$links = [];
 					
 					if (! empty($talent['abilityLinks']))

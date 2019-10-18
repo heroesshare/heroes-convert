@@ -32,7 +32,7 @@ class Output extends Base
 	{
 		parent::__construct($heroes);
 		
-		$this->directory = __DIR__ . DIRECTORY_SEPARATOR . 'heroes' . DIRECTORY_SEPARATOR;
+		$this->directory = __DIR__ . DIRECTORY_SEPARATOR . 'hero' . DIRECTORY_SEPARATOR;
 	}
 
 	/**

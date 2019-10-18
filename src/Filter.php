@@ -22,10 +22,12 @@ class Filter extends Base
 	 * @var array
 	 */
 	protected $abilityUids = [
-		'48f7b' => 'Summon Mount',
-		'88ec3' => 'Hearthstone',
-		'eb6d7' => 'Quick Spray Expression',
-		'8187d' => 'Quick Voice Line Expression',
+		'48f7bd' => 'Summon Mount',
+		'ebf134' => 'Unsummon Mount',
+		'88ec35' => 'Hearthstone',
+		'535f70' => 'Hearthstone',
+		'eb6d75' => 'Quick Spray Expression',
+		'8187dd' => 'Quick Voice Line Expression',
 	];
 	
 	/**
