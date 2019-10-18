@@ -17,34 +17,6 @@ require_once 'Base.php';
 class Intervene extends Base
 {
 	/**
-	 * Array of subunit names
-	 *
-	 * By default subunits and their abilities are ignored
-	 * but specifying them hero allows Output to include
-	 * their abilities.
-	 *
-	 * @var array
-	 */
-	protected $subunits = [
-		'valeera'     => 'ValeeraStealth',
-		'uther'       => 'UtherEternalDevotion',
-		'tychus'      => 'TychusOdinNoHealth',
-		'nazeebo'     => 'WitchDoctorGargantuan',
-		'leoric'      => 'LeoricUndyingTrait',
-		'greymane'    => 'GreymaneWorgenForm',
-		'chen'        => 'ChenStormEarthFire',
-		'lostvikings' => 'LostVikingsLongboatRaidNewer',
-		'fenix'       => 'FenixPhaseBomb',
-		'lucio'       => 'LucioCrossfade',
-		'jaina'       => 'JainaTraitFrostbite',
-		'kelthuzad'   => 'KelThuzadMasterOfTheColdDark',
-		'ragnaros'    => 'RagnarosBigRag',
-		'alexstrasza' => 'AlexstraszaDragon',
-		'abathur'     => 'AbathurSymbiote',
-		'dva'         => 'D.VaPilot',
-	];
-	
-	/**
 	 * Array of additional info not found in HDP
 	 * [heroesTalentId, releasePatch]
 	 *
@@ -160,12 +132,6 @@ class Intervene extends Base
 			$hero['id']           = $this->extras[$shortname][0];
 			$hero['releasePatch'] = $this->extras[$shortname][1];
 			
-			// Check for a subunit
-			if (isset($this->subunits[$shortname]))
-			{
-				$hero['subunit'] = $this->subunits[$shortname];
-			}
-			
 			// Update the collection
 			$this->heroes[$shortname] = $hero;
 		}
@@ -178,7 +144,7 @@ class Intervene extends Base
 			'RoleAutoAttacker',
 			'RoleTank',
 			'WaveClearer'
-		],
+		];
 
 /*
 		// A few overrides from the old version to look through at some point...

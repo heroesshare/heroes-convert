@@ -254,6 +254,7 @@ class Parse extends Base
 		{
 			$ability['herounit'] = $raw['herounit'];
 		}
+		$ability['sub'] = isset($ability['subunit']) || isset($ability['herounit']);
 		
 		// Use abilityType to set the hotkey
 		if ($raw['abilityType'] == 'Heroic')

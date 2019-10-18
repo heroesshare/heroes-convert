@@ -131,9 +131,9 @@ class Output extends Base
 		];
 
 		// Check for subunit
-		if (isset($hero['subunit']))
+		if (isset($this->subunits[$hero['shortName']]))
 		{
-			$abilities[$hero['subunit']] = $this->prepAbilities($hero['abilities'], true);
+			$abilities[$this->subunits[$hero['shortName']]] = $this->prepAbilities($hero['abilities'], true);
 		}
 
 		$return['abilities'] = $abilities;

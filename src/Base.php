@@ -46,6 +46,34 @@ class Base
 	protected $logLevel = [1, 2, 3, 4, 5, 8];
 
 	/**
+	 * Array of subunit names
+	 *
+	 * By default subunits and their abilities are ignored
+	 * but specifying them here allows other classes to decide
+	 * on their abilities.
+	 *
+	 * @var array
+	 */
+	protected $subunits = [
+		'valeera'     => 'ValeeraStealth',
+		'uther'       => 'UtherEternalDevotion',
+		'tychus'      => 'TychusOdinNoHealth',
+		'nazeebo'     => 'WitchDoctorGargantuan',
+		'leoric'      => 'LeoricUndyingTrait',
+		'greymane'    => 'GreymaneWorgenForm',
+		'chen'        => 'ChenStormEarthFire',
+		'lostvikings' => 'LostVikingsLongboatRaidNewer',
+		'fenix'       => 'FenixPhaseBomb',
+		'lucio'       => 'LucioCrossfade',
+		'jaina'       => 'JainaTraitFrostbite',
+		'kelthuzad'   => 'KelThuzadMasterOfTheColdDark',
+		'ragnaros'    => 'RagnarosBigRag',
+		'alexstrasza' => 'AlexstraszaDragon',
+		'abathur'     => 'AbathurSymbiote',
+		'dva'         => 'D.VaPilot',
+	];
+
+	/**
 	 * Store the heroes.
 	 *
 	 * @param array   $heroes  Parsed hero array
