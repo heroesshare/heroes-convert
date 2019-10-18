@@ -33,8 +33,7 @@ cp "$1/*" "$outDir"
 
 # resize and compress images
 echo "[`date`] Resizing talent icons to 64x64"
-cd "$outDir"
-"$magickPath" mogrify -resize 64x64 -strip -depth 8 *.png
+"$magickPath" mogrify -resize 64x64 -strip -depth 8 "$outDir"/*.png
 
 # verify status
 if [ $? -ne 0 ]; then
