@@ -1,0 +1,51 @@
+#!/bin/sh
+
+if [ ! "$1" ]; then
+	echo "Usage: ./images-convert /path/to/images/abilitytalents [ /path/to/output ]"
+	exit 2
+fi
+
+# programs for image conversion
+magickPath=`which magick`
+if [ ! "$magickPath" ]; then
+	echo "[`date`] ERROR: Unmet requirement: missing dependency 'magick'"
+	echo "[`date`] Recommend 'brew install ImageMagick'"
+	exit 1
+fi
+
+renamePath=`which rename`
+if [ ! "$renamePath" ]; then
+	echo "[`date`] ERROR: Unmet requirement: missing dependency 'rename'"
+	echo "[`date`] Recommend 'brew install rename'"
+	exit 1
+fi
+
+# set output directory
+if [ "$2" ]; then
+	outDir="$2"
+else
+	outDir=`pwd`/talents
+fi
+mkdir -p "$outDir"
+
+# copy to target
+cp "$1/*" "$outDir"
+
+# resize and compress images
+echo "[`date`] Resizing talent icons to 64x64"
+cd "$outDir"
+"$magickPath" mogrify -resize 64x64 -strip -depth 8 *.png
+
+# verify status
+if [ $? -ne 0 ]; then
+	echo "[`date`] Image resize seems to have failed!"
+	exit 1
+fi
+
+# remove apostrophes from filenames (mostly Kel'Thuzad)
+"$renamePath" "s/'//" *.png
+
+# verify status
+if [ $? -ne 0 ]; then
+	echo "[`date`] Bulk rename failed! You may have to remove apostrophes manually."
+fi
