@@ -34,12 +34,10 @@ $parse  = new Parse($argv[1]);
 $heroes = $parse->run()->getHeroes();
 unset($parse);
 
-/*
 // Apply filters to remove unwanted data
 $filter = new Filter($heroes);
 $heroes = $filter->run()->getHeroes();
 unset($filter);
-*/
 
 // Link talents to their abilities
 $connect = new Connect($heroes);

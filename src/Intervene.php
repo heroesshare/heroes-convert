@@ -15,7 +15,41 @@ require_once 'Base.php';
  * Applies manual data overrides
  */
 class Intervene extends Base
-{	
+{
+	/**
+	 * Array of subunit names
+	 *
+	 * By default subunits and their abilities are ignored
+	 * but specifying them hero allows Output to include
+	 * their abilities.
+	 *
+	 * @var array
+	 */
+	protected $subunits = [
+		'valeera'     => 'ValeeraStealth',
+		'uther'       => 'UtherEternalDevotion',
+		'tychus'      => 'TychusOdinNoHealth',
+		'nazeebo'     => 'WitchDoctorGargantuan',
+		'leoric'      => 'LeoricUndyingTrait',
+		'greymane'    => 'GreymaneWorgenForm',
+		'chen'        => 'ChenStormEarthFire',
+		'lostvikings' => 'LostVikingsLongboatRaidNewer',
+		'fenix'       => 'FenixPhaseBomb',
+		'lucio'       => 'LucioCrossfade',
+		'jaina'       => 'JainaTraitFrostbite',
+		'kelthuzad'   => 'KelThuzadMasterOfTheColdDark',
+		'ragnaros'    => 'RagnarosBigRag',
+		'alexstrasza' => 'AlexstraszaDragon',
+		'abathur'     => 'AbathurSymbiote',
+		'dva'         => 'D.VaPilot',
+	];
+	
+	/**
+	 * Array of additional info not found in HDP
+	 * [heroesTalentId, releasePatch]
+	 *
+	 * @var array
+	 */
 	protected $extras = [
 		'abathur'     => [1,  '0.1.1.00000'],
 		'alarak'      => [56, '1.20.0.46158'],
@@ -126,6 +160,12 @@ class Intervene extends Base
 			$hero['id']           = $this->extras[$shortname][0];
 			$hero['releasePatch'] = $this->extras[$shortname][1];
 			
+			// Check for a subunit
+			if (isset($this->subunits[$shortname]))
+			{
+				$hero['subunit'] = $this->subunits[$shortname];
+			}
+			
 			// Update the collection
 			$this->heroes[$shortname] = $hero;
 		}
@@ -156,11 +196,11 @@ class Intervene extends Base
 	}
 
 	/**
-	 * Add heroes-talent IDs to each hero
+	 * Set subunits on heroes that use them
 	 *
 	 * @return $this
 	 */
-	public function addIDs()
+	public function addSubunits()
 	{
 		// Process each hero
 		foreach ($this->heroes as $shortname => $hero)
@@ -175,9 +215,7 @@ class Intervene extends Base
 			// Add it to the collection
 			$this->heroes[$hero['shortname']] = $hero;
 		}
-		
 
-		
 		return $this;
 	}
 }

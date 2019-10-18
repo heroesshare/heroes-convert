@@ -131,7 +131,7 @@ class Parse extends Base
 		
 		// Parse and add talents
 		$hero['talents'] = $this->talentsFromRaw($raw);
-		
+
 		return $hero;
 	}
 
@@ -166,7 +166,7 @@ class Parse extends Base
 			// Determine the code (e.g Q1) - hotkey concat (# hotkey abilities + 1)
 			switch ($ability['type'])
 			{
-				case 'trait': $code = 'D'; break;
+				case 'trait': $code = 'D'; $ability['trait'] = true; break;
 				case 'spray': $code = 'T'; break;
 				case 'voice': $code = 'I'; break;
 				case 'mount': $code = 'Z'; break;
@@ -191,9 +191,9 @@ class Parse extends Base
 			}
 			$hotkeys[$code]++;
 
-			// Set the code and "ability"
-			$ability['code']    = $code . $hotkeys[$code];
-			$ability['ability'] = $cHeroId . '|' . $ability['code'];
+			// Set the code and abilityId
+			$ability['code']      = $code . $hotkeys[$code];
+			$ability['abilityId'] = $cHeroId . '|' . $ability['code'];
 			
 			$return[] = $ability;
 		}

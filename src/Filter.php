@@ -15,14 +15,52 @@ require_once 'Base.php';
  * Removes entries not relevant to heroes-talents
  */
 class Filter extends Base
-{	
+{
 	/**
-	 * Store the heroes.
+	 * Ability UIDs to filter
 	 *
-	 * @param array  $heroes  Parsed hero array
+	 * @var array
 	 */
-	public function __construct(array $heroes)
+	protected $abilityUids = [
+		'48f7b' => 'Summon Mount',
+		'88ec3' => 'Hearthstone',
+		'eb6d7' => 'Quick Spray Expression',
+		'8187d' => 'Quick Voice Line Expression',
+	];
+	
+	/**
+	 * Remove unwanted items from the heroes array
+	 *
+	 * @return $this
+	 */
+	public function run()
 	{
-		parent::__construct($heroes);
+		$this->filterAbilities();
+		
+		return $this;
+	}
+
+	/**
+	 * Check abilities against the filter lists
+	 */
+	protected function filterAbilities()
+	{
+		// Traverse heroes for each ability
+		foreach ($this->heroes as $shortname => $hero)
+		{
+			foreach ($hero['abilities'] as $i => $ability)
+			{
+				if (isset($this->abilityUids[$ability['uid']]))
+				{
+					unset($this->heroes[$shortname]['abilities'][$i]);
+				}
+				
+				// Remove ancillary abilities
+				if (preg_match('#(Primed|Cancel)$#', $ability['nameId']))
+				{
+					unset($this->heroes[$shortname]['abilities'][$i]);
+				}
+			}
+		}
 	}
 }

@@ -115,8 +115,8 @@ class Output extends Base
 		$return = [];
 		
 		// Build the array in precise order
-		foreach (['id', 'shortName', 'attributeId', 'cHeroId', 'cUnitId',
-			'name', 'icon', 'role', 'expandedRole', 'type', 'releaseDate', 'tags'] as $key)
+		foreach (['id', 'shortName', 'attributeId', 'cHeroId', 'cUnitId', 'name', 'icon', 
+			'role', 'expandedRole', 'type', 'releaseDate', 'releasePatch', 'tags'] as $key)
 		{
 			if (isset($hero[$key]))
 			{
@@ -135,7 +135,7 @@ class Output extends Base
 		{
 			$abilities[$hero['subunit']] = $this->prepAbilities($hero['abilities'], true);
 		}
-		
+
 		$return['abilities'] = $abilities;
 		
 		$return['talents']   = $this->prepTalents($hero['talents']);
@@ -153,7 +153,7 @@ class Output extends Base
 	protected function prepAbilities(array $abilities, $subunit = false): array
 	{
 		// Assign abilities in likely cast order
-		$sorted = array_flip(['Q1', 'W1', 'E1', '11', '21', '31', '41', 'D1', 'Z1', 'R1', 'R2', 'R3', 'Q2', 'W2', 'E2', 'D2', 'D3']);
+		$sorted = array_flip(['Q1', 'W1', 'E1', '11', '21', '31', '41', 'R1', 'R2', 'R3', 'D1', 'Z1', 'Q2', 'W2', 'E2', 'D2', 'D3']);
 
 		foreach ($abilities as $ability)
 		{
@@ -175,7 +175,16 @@ class Output extends Base
 			$sorted[$ability['code']] = $this->prepAbility($ability);
 		}
 		
-		return array_values($sorted);
+		$return = [];
+		foreach ($sorted as $value)
+		{
+			if (is_array($value))
+			{
+				$return[] = $value;
+			}
+		}
+		
+		return $return;
 	}
 	
 	/**
@@ -187,10 +196,10 @@ class Output extends Base
 	 */
 	protected function prepAbility(array $ability): array
 	{
-		$return = [];
+		$return = ['uid' => $ability['uid']];
 		
 		// Build the array in precise order
-		foreach (['uid', 'name', 'description', 'hotkey', 'abilityId',
+		foreach (['name', 'description', 'hotkey', 'trait', 'abilityId',
 			'cooldown', 'manaCost', 'manaPerSecond', 'icon', 'type'] as $key)
 		{
 			if (isset($ability[$key]))
@@ -227,7 +236,7 @@ class Output extends Base
 			
 			ksort($sorted);
 			
-			$return[$level] = $sorted;
+			$return[$level] = array_values($sorted);
 		}
 		
 		return $return;

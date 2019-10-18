@@ -95,8 +95,7 @@ class Locale extends Base
 		$strings = [];
 		
 		$this->addHeroStrings();
-		$this->addAbilityStrings();
-		$this->addAbiltalentDescriptions();
+		$this->addAbiltalentStrings();
 		
 		return $this;
 	}
@@ -133,28 +132,28 @@ class Locale extends Base
 	}
 
 	/**
-	 * Add relevant strings to each ability
+	 * Add descriptions to abilities and talents
 	 *
 	 * @return array
 	 */
-	protected function addAbilityStrings()
+	protected function addAbiltalentStrings()
 	{
-		$strings = [];
-
 		// Get each set of strings
-		$strings['name'] = $this->abilityNames($this->abiltalentStrings['name']);
-		unset($this->abiltalentStrings['name']);
-		$strings['cooldown'] = $this->abilityCooldowns($this->abiltalentStrings['cooldown']);
-		unset($this->abiltalentStrings['cooldown']);
-		$strings['manaCost'] = $this->abilityManaCosts($this->abiltalentStrings['energy']);
-		unset($this->abiltalentStrings['energy']);
-
-		// Traverse heroes for each ability and set matching strings
+		$strings['name']        = $this->abiltalentNames($this->abiltalentStrings['name']);
+		$strings['description'] = $this->abiltalentDescriptions($this->abiltalentStrings['full']);
+		$strings['cooldown']    = $this->abiltalentCooldowns($this->abiltalentStrings['cooldown']);
+		$strings['manaCost']    = $this->abiltalentManaCosts($this->abiltalentStrings['energy']);
+		
+		// Free up some memory
+		unset($this->abiltalentStrings);
+		
+		// Traverse heroes and set matching strings
 		foreach ($this->heroes as $shortname => $hero)
 		{
+			// Check each ability
 			foreach ($hero['abilities'] as $i => $ability)
 			{
-				foreach (['name', 'cooldown', 'manaCost'] as $key)
+				foreach (['name', 'description', 'cooldown', 'manaCost'] as $key)
 				{
 					if (isset($strings[$key][$ability['uid']]))
 					{
@@ -162,7 +161,23 @@ class Locale extends Base
 					}
 				}
 			}
+			
+			// Check each talent
+			foreach ($hero['talents'] as $level => $talents)
+			{
+				foreach ($talents as $i => $talent)
+				{
+					foreach (['name', 'description', 'cooldown', 'manaCost'] as $key)
+					{
+						if (isset($strings[$key][$talent['uid']]))
+						{
+							$this->heroes[$shortname]['talents'][$level][$i][$key] = $strings[$key][$talent['uid']];
+						}
+					}
+				}
+			}
 		}
+
 		unset($strings);
 	}
 
@@ -173,7 +188,7 @@ class Locale extends Base
 	 *
 	 * @return array
 	 */
-	protected function abilityNames(array $names): array
+	protected function abiltalentNames(array $names): array
 	{
 		$return = [];
 		
@@ -186,99 +201,6 @@ class Locale extends Base
 		}
 		
 		return $return;		
-	}
-
-	/**
-	 * Fetch ability cooldowns by their UID
-	 *
-	 * @param array   $cooldowns  HDP cooldown gamestrings
-	 *
-	 * @return array
-	 */
-	protected function abilityCooldowns(array $cooldowns): array
-	{
-		$return = [];
-		
-		foreach ($cooldowns as $id => $cooldown)
-		{
-			// Hash the UID
-			$uid = $this->abiltalentUid($id);
-			
-			// Strip everything but the number of seconds
-			$cooldown = filter_var($cooldown, FILTER_SANITIZE_NUMBER_FLOAT);
-
-			$return[$uid] = $cooldown;
-		}
-		
-		return $return;		
-	}
-
-	/**
-	 * Fetch ability mana costs by their UID
-	 *
-	 * @param array   $costs  HDP energy gamestrings
-	 *
-	 * @return array
-	 */
-	protected function abilityManaCosts(array $costs): array
-	{
-		$return = [];
-		
-		foreach ($costs as $id => $cost)
-		{
-			// Hash the UID
-			$uid = $this->abiltalentUid($id);
-			
-			// Find the space before the actual cost
-			$pos = strrpos($cost, ' ');
-			
-			// Lop everything before and trim the final "</s>"
-			$cost = substr($cost, $pos + 1, -4);
-						
-			$return[$uid] = $cost;
-		}
-		
-		return $return;		
-	}
-
-	/**
-	 * Add descriptions to abilities and talents
-	 *
-	 * @return array
-	 */
-	protected function addAbiltalentDescriptions()
-	{
-		// Get the descriptions
-		$descriptions = $this->abiltalentDescriptions($this->abiltalentStrings['full']);
-
-		// Free up some memory
-		unset($this->abiltalentStrings);
-		
-		// Traverse heroes and set matching strings
-		foreach ($this->heroes as $shortname => $hero)
-		{
-			// Check each ability
-			foreach ($hero['abilities'] as $i => $ability)
-			{
-				if (isset($descriptions[$ability['uid']]))
-				{
-					$this->heroes[$shortname]['abilities'][$i]['description'] = $descriptions[$ability['uid']];
-				}
-			}
-			
-			// Check each talent
-			foreach ($hero['talents'] as $level => $talents)
-			{
-				foreach ($talents as $i => $talent)
-				{
-					if (isset($descriptions[$talent['uid']]))
-					{
-						$this->heroes[$shortname]['talents'][$level][$i]['description'] = $descriptions[$talent['uid']];
-					}
-				}
-			}
-		}
-		unset($strings);
 	}
 
 	/**
@@ -322,5 +244,57 @@ class Locale extends Base
 		
 		return $return;		
 	}
-	
+
+	/**
+	 * Fetch ability and talent cooldowns by their UID
+	 *
+	 * @param array   $cooldowns  HDP cooldown gamestrings
+	 *
+	 * @return array
+	 */
+	protected function abiltalentCooldowns(array $cooldowns): array
+	{
+		$return = [];
+		
+		foreach ($cooldowns as $id => $cooldown)
+		{
+			// Hash the UID
+			$uid = $this->abiltalentUid($id);
+			
+			// Strip everything but the number of seconds
+			$cooldown = filter_var($cooldown, FILTER_SANITIZE_NUMBER_FLOAT);
+
+			$return[$uid] = $cooldown;
+		}
+		
+		return $return;		
+	}
+
+	/**
+	 * Fetch ability and talent mana costs by their UID
+	 *
+	 * @param array   $costs  HDP energy gamestrings
+	 *
+	 * @return array
+	 */
+	protected function abiltalentManaCosts(array $costs): array
+	{
+		$return = [];
+		
+		foreach ($costs as $id => $cost)
+		{
+			// Hash the UID
+			$uid = $this->abiltalentUid($id);
+			
+			// Find the space before the actual cost
+			$pos = strrpos($cost, ' ');
+			
+			// Lop everything before and trim the final "</s>"
+			$cost = substr($cost, $pos + 1, -4);
+						
+			$return[$uid] = $cost;
+		}
+		
+		return $return;		
+	}
 }

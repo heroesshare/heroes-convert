@@ -43,7 +43,7 @@ class Base
 	 *
 	 * @var int|array
 	 */
-	protected $logLevel = 9;
+	protected $logLevel = [1, 2, 3, 4, 5, 8];
 
 	/**
 	 * Store the heroes.

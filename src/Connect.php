@@ -21,7 +21,7 @@ class Connect extends Base
 	 *
 	 * @var string
 	 */
-	public $linkKey = 'uid';
+	public $linkKey = 'abilityId';
 	
 	/**
 	 * Update each talent's abilityLinks to heroes-talent format
@@ -71,27 +71,35 @@ class Connect extends Base
 			{
 				foreach ($talents as $i => $talent)
 				{
-					if (empty($talent['abilityLinks']))
-					{
-						continue;
-					}
-					
+					$abilityId = $talent['type'] == 'Passive' ? $hero['hyperlinkId'] . '|Passive' : null;
 					$links = [];
 					
-					foreach ($talent['abilityLinks'] as $nameId)
+					if (! empty($talent['abilityLinks']))
 					{
-						if (! isset($abilities[$nameId]))
+						foreach ($talent['abilityLinks'] as $nameId)
 						{
-							$this->logMessage("Unable to match ability nameId '{$nameId}' for {$talent['uid']}", 'warning');
+							if (! isset($abilities[$nameId]))
+							{
+								$this->logMessage("Unable to match ability nameId '{$nameId}' for {$talent['talentTreeId']}", 'info');
 
-							continue;
-						}
+								continue;
+							}
 						
-						$links[] = $abilities[$nameId][$this->linkKey];
+							$abilityId = $abilityId ?? $abilities[$nameId]['abilityId'] ?? null;
+							$links[]   = $abilities[$nameId][$this->linkKey];
+						}
+					
+						if (empty($links))
+						{
+							$this->logMessage("No abilities matched for {$talent['talentTreeId']}. Searched for: " . implode(', ', $talent['abilityLinks']), 'warning');
+						}
+							
+						// Overwrite with the new links
+						$this->heroes[$shortname]['talents'][$level][$i]['abilityLinks'] = $links;
 					}
 					
-					// Overwrite with the new links
-					$this->heroes[$shortname]['talents'][$level][$i]['abilityLinks'] = $links;
+					// Set the abilityId
+					$this->heroes[$shortname]['talents'][$level][$i]['abilityId'] = $abilityId;
 				}
 			}
 		}
