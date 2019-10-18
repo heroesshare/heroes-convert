@@ -28,11 +28,19 @@ else
 fi
 mkdir -p "$outDir"
 
+echo "[`date`] Copying images from $1 to $outDir..."
+
 # copy to target
-cp "$1/*" "$outDir"
+cp "$1"/* "$outDir"
+
+# verify status
+if [ $? -ne 0 ]; then
+	echo "[`date`] Failed to copy images!"
+	exit 1
+fi
 
 # resize and compress images
-echo "[`date`] Resizing talent icons to 64x64"
+echo "[`date`] Resizing talent icons to 64x64..."
 "$magickPath" mogrify -resize 64x64 -strip -depth 8 "$outDir"/*.png
 
 # verify status
@@ -42,9 +50,14 @@ if [ $? -ne 0 ]; then
 fi
 
 # remove apostrophes from filenames (mostly Kel'Thuzad)
-"$renamePath" "s/'//" *.png
+echo "[`date`] Removing apostrophes..."
+"$renamePath" "s/'//" "$outDir"/*.png
 
 # verify status
 if [ $? -ne 0 ]; then
 	echo "[`date`] Bulk rename failed! You may have to remove apostrophes manually."
 fi
+
+echo "[`date`] Success! Icons resized and compressed to: $outDir"
+
+exit 0
