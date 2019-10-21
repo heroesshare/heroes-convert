@@ -33,6 +33,11 @@ class Filter extends Base
 		'797e59' => 'Cancel Wraith Walk',
 		'66ee35' => 'Laser Drill Issue Order',
 		'3e561e' => 'Overkill Retarget',
+		'bc64f9' => 'Evolve Monstrosity Active',
+		'97c248' => 'Cancel Bunny Hop',
+		'0479e0' => 'Shifting Meteor',
+		'285893' => 'Return', // Molten Core
+		'a7507f' => 'Cancel Return', // Molten Core
 	];
 	
 	/**
@@ -64,7 +69,7 @@ class Filter extends Base
 				}
 				
 				// Remove ancillary abilities
-				if (preg_match('#(Primed|Cancel)$#', $ability['nameId']))
+				if (preg_match('#(Primed|Cancel|DVa.+Off)$#', $ability['nameId']))
 				{
 					unset($this->heroes[$shortname]['abilities'][$i]);
 				}

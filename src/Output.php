@@ -153,7 +153,7 @@ class Output extends Base
 	protected function prepAbilities(array $abilities, $subunit = false): array
 	{
 		// Assign abilities in likely cast order
-		$sorted = array_flip(['Q1', 'W1', 'E1', '11', '21', '31', '41', 'R1', 'R2', 'R3', 'D1', 'Z1', 'Q2', 'W2', 'E2', 'D2', 'D3']);
+		$sorted = array_flip(['Q1', 'W1', 'E1', 'R1', 'R2', 'R3', 'D1', 'Z1', '11', '21', '31', '41', 'Q2', 'W2', 'E2', 'D2', 'D3']);
 
 		foreach ($abilities as $ability)
 		{
