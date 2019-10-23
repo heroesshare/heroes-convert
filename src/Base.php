@@ -162,9 +162,9 @@ class Base
 		}
 		
 		// Check every hero's abilities
-		foreach ($this->heroes as $shortname => $abilities)
+		foreach ($this->heroes as $shortname => $hero)
 		{
-			foreach ($abilities as $i => $ability)
+			foreach ($hero['abilities'] as $i => $ability)
 			{
 				if ($ability['uid'] == $uid)
 				{
@@ -178,13 +178,13 @@ class Base
 	 * Searches a hero for an ability
 	 *
 	 * @param string   $uid        Ability UID
-	 * @param string   $shortname  Optional hero shortname (to improve performance)
+	 * @param string   $shortname  Hero shortname
 	 *
 	 * @return int     index to the ability 
 	 */
 	public function findHeroAbility(string $uid, string $shortname): ?int
 	{
-		foreach ($this->heroes[$shortname][$abilities] as $i => $ability)
+		foreach ($this->heroes[$shortname]['abilities'] as $i => $ability)
 		{
 			if ($ability['uid'] == $uid)
 			{
@@ -214,5 +214,54 @@ class Base
 		}
 		
 		$this->heroes[$shortname]['abilities'][$i] = array_replace_recursive($this->heroes[$shortname]['abilities'][$i], $array);
+	}
+	
+	/**
+	 * Searches a hero for a talent
+	 *
+	 * @param string   $uid        Talent UID
+	 * @param string   $shortname  Hero shortname
+	 * @param int      $level      Optional level (to improve performance)
+	 *
+	 * @return array   [level, index] to the talent 
+	 */
+	public function findHeroTalent(string $uid, string $shortname, int $level = null): array
+	{
+		$levels = $level ? [$level => $this->heroes[$shortname]['talents'][$level]] : $this->heroes[$shortname]['talents'];
+		
+		foreach ($levels as $level => $talents)
+		{
+			foreach ($talents as $i => $talent)
+			{
+				if ($talent['uid'] == $uid)
+				{
+					return [$level, $i];
+				}
+			}
+		}
+		
+		$this->logMessage("Talent {$uid} not found for {$shortname}!", 'warning');
+		
+		return null;
+	}
+	
+	/**
+	 * Directly updates a talent in $this->heroes
+	 *
+	 * @param string   $uid        Talent UID
+	 * @param string   $shortname  Hero shortname
+	 * @param array    $array      Array of changes to make
+	 *
+	 * @return string  UID
+	 */
+	public function updateHeroTalent(string $uid, string $shortname, array $array)
+	{
+		if (! $array = $this->findHeroTalent($uid, $shortname))
+		{
+			throw new \RuntimeException("Talent not found: {$uid} ($shortname)");
+		}
+		
+		$this->heroes[$shortname]['talents'][$array[0]][$array[1]] =
+			array_replace_recursive($this->heroes[$shortname]['talents'][$array[0]][$array[1]], $array);
 	}
 }
