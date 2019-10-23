@@ -132,6 +132,23 @@ class Intervene extends Base
 			$hero['id']           = $this->extras[$shortname][0];
 			$hero['releasePatch'] = $this->extras[$shortname][1];
 			
+			// Process each ability
+			foreach ($hero['abilities'] as $i => $ability)
+			{
+				// Set hotkeys on traits that have cooldowns
+				if ($ability['type'] == 'trait' && ! empty($ability['cooldown']))
+				{
+					$hero['abilities'][$i]['hotkey'] = 'D';
+				}
+				
+				// Check for mana costs per second
+				if (isset($ability['manaCost']) && strlen($ability['manaCost']) > 3)
+				{
+					$hero['abilities'][$i]['manaCost']      = filter_var($ability['manaCost'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
+					$hero['abilities'][$i]['manaPerSecond'] = true;
+				}
+			}
+			
 			// Update the collection
 			$this->heroes[$shortname] = $hero;
 		}

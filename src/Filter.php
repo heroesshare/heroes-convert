@@ -38,6 +38,7 @@ class Filter extends Base
 		'0479e0' => 'Shifting Meteor',
 		'285893' => 'Return', // Molten Core
 		'a7507f' => 'Cancel Return', // Molten Core
+		'f2827a' => 'Gargantuan Stomp',
 	];
 	
 	/**

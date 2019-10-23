@@ -261,8 +261,11 @@ class Locale extends Base
 			// Hash the UID
 			$uid = $this->abiltalentUid($id);
 			
+			// Remove tags
+			$cooldown = preg_replace('#<.+?>#', '', $cooldown);
+			
 			// Strip everything but the number of seconds
-			$cooldown = filter_var($cooldown, FILTER_SANITIZE_NUMBER_FLOAT);
+			$cooldown = filter_var($cooldown, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
 
 			$return[$uid] = $cooldown;
 		}
@@ -286,12 +289,12 @@ class Locale extends Base
 			// Hash the UID
 			$uid = $this->abiltalentUid($id);
 			
-			// Find the space before the actual cost
-			$pos = strrpos($cost, ' ');
+			// Find the colon before the actual cost
+			$pos = strrpos($cost, ':');
 			
 			// Lop everything before and trim the final "</s>"
-			$cost = substr($cost, $pos + 1, -4);
-						
+			$cost = substr($cost, $pos + 2, -4);
+					
 			$return[$uid] = $cost;
 		}
 		
