@@ -197,7 +197,7 @@ class Locale extends Base
 			// Hash the UID
 			$uid = $this->abiltalentUid($id);
 			
-			$return[$uid] = $name;
+			$return[$uid] = trim($name);
 		}
 		
 		return $return;		
@@ -292,7 +292,7 @@ class Locale extends Base
 			// Find the colon before the actual cost
 			$pos = strrpos($cost, ':');
 			
-			// Lop everything before and trim the final "</s>"
+			// Lop everything before the number and trim the final "</s>"
 			$cost = substr($cost, $pos + 2, -4);
 					
 			$return[$uid] = $cost;

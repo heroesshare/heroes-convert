@@ -128,7 +128,7 @@ class Parse extends Base
 		
 		// Parse and add abilities
 		$hero['abilities'] = $this->addAbilitiesExtras($hero['hyperlinkId'], $this->abilitiesFromRaw($raw));
-		
+
 		// Parse and add talents
 		$hero['talents'] = $this->talentsFromRaw($raw);
 

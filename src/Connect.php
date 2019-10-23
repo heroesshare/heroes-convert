@@ -91,7 +91,7 @@ class Connect extends Base
 					
 						if (empty($links))
 						{
-							$this->logMessage("No abilities matched for {$talent['talentTreeId']}. Searched for: " . implode(', ', $talent['abilityLinks']), 'warning');
+							$this->logMessage("Talent {$talent['talentTreeId']} ({$talent['uid']}) missing ability links for: " . implode(', ', $talent['abilityLinks']), 'warning');
 						}
 							
 						// Overwrite with the new links

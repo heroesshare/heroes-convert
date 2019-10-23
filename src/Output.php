@@ -147,29 +147,21 @@ class Output extends Base
 	 * Preps one hero's abilities for output
 	 *
 	 * @param array $abilities
+	 * @param bool  $sub  Whether to return just sub abilities
 	 *
 	 * @return array
 	 */
-	protected function prepAbilities(array $abilities, $subunit = false): array
+	protected function prepAbilities(array $abilities, $sub = false): array
 	{
 		// Assign abilities in likely cast order
 		$sorted = array_flip(['Q1', 'W1', 'E1', 'R1', 'R2', 'R3', 'D1', 'Z1', '11', '21', '31', '41', 'Q2', 'W2', 'E2', 'D2', 'D3']);
 
 		foreach ($abilities as $ability)
 		{
-			if (isset($ability['subunit']) || isset($ability['herounit']))
+			// Skip primary abilities when subunit is requested, and vice versa
+			if (! ($sub == $ability['sub']))
 			{
-				if ($subunit === false)
-				{
-					continue;
-				}
-			}
-			else
-			{
-				if ($subunit === true)
-				{
-					continue;
-				}
+				continue;
 			}
 
 			$sorted[$ability['code']] = $this->prepAbility($ability);
@@ -204,8 +196,20 @@ class Output extends Base
 		{
 			if (isset($ability[$key]))
 			{
+				// Hotkeys are always strings
+				if ($key == 'hotkey')
+				{
+					$return[$key] = (string)$ability[$key];
+				}
 				// Make sure numericals are numbers
-				$return[$key] = is_numeric($ability[$key]) ? (float)$ability[$key] : $ability[$key];
+				elseif (is_numeric($ability[$key]))
+				{
+					$return[$key] = (float)$ability[$key];
+				}
+				else 
+				{
+					$return[$key] = (string)$ability[$key];
+				}
 			}
 		}
 		

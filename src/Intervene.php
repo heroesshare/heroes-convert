@@ -28,7 +28,7 @@ class Intervene extends Base
 		'alexstrasza' => [74, '2.29.0.59657'],
 		'ana'         => [72, '2.28.0.57797'],
 		'anduin'      => [86, '2.45.0.73662'],
-		'anubarak'    => [31, '0.6.5.32455 '],
+		'anubarak'    => [31, '0.6.5.32455'],
 		'artanis'     => [43, '1.14.2.38593'],
 		'arthas'      => [2,  '0.1.1.00000'],
 		'auriel'      => [55, '1.19.4.45228'],
@@ -152,7 +152,24 @@ class Intervene extends Base
 			// Update the collection
 			$this->heroes[$shortname] = $hero;
 		}
+		
+		// Change quest-unlocked activables to primary abilities
+		$this->updateHeroAbility('fbd5a2', 'jaina', ['sub' => false]); // ImprovedIceBlock
+		$this->updateHeroAbility('870ba5', 'kelthuzad', ['sub' => false]); // KelThuzadGlacialSpike
+		
+		// And keep heroics with sub-ability equivalents as primary abilities
+		$this->updateHeroAbility('58759f', 'alexstrasza', ['sub' => false]); // AlexstraszaLifebinder
+		
+		// Malthael has the only talent that modifies generic mount
+		$this->updateHeroTalent('3e52a9', 'malthael', ['abilityLinks' => ['Malthael|Z']]);
 
+		// VarianTwinBladesOfFury -> VarianTwinBladesofFury (notice case on "of/Of")
+		// https://github.com/HeroesToolChest/HeroesDataParser/issues/60
+		$this->updateHeroTalent('21df2d', 'varian', ['abilityLinks' => ['Varian|R3']]);
+		
+		// Set ability links on talents that reference other talents
+		$this->talentAbilityLinkTalents();
+		
 		// Set TLV tags
 		$this->heroes['lostvikings']['tags'] = [
 			'Escaper',
@@ -162,7 +179,6 @@ class Intervene extends Base
 			'RoleTank',
 			'WaveClearer'
 		];
-
 /*
 		// A few overrides from the old version to look through at some point...
 		
@@ -172,13 +188,8 @@ class Intervene extends Base
 		
 		// A few manual overrides (shortname => type)
 		$overrides = [
-			'AlexstraszaLifebinder'          => 'heroic',
 			'DVaPilotBigShot'                => 'heroic',
 			'DVaPilotPilotMode'              => 'trait',
-			'RagnarosBigRagReturnMoltenCore' => 'trait',
-			'RagnarosLavaWaveTargetPoint'    => 'heroic',
-			'KelThuzadGlacialSpike'          => 'activable',
-			'ImprovedIceBlock'               => 'activable',
 			'LostVikingSelectAll'            => 'subunit',
 		];
 		if (isset($overrides[$ability['shortname']]))
@@ -193,7 +204,7 @@ class Intervene extends Base
 	 *
 	 * @return $this
 	 */
-	public function addSubunits()
+	protected function addSubunits()
 	{
 		// Process each hero
 		foreach ($this->heroes as $shortname => $hero)
@@ -210,5 +221,22 @@ class Intervene extends Base
 		}
 
 		return $this;
+	}
+
+	/**
+	 * Set ability links on talents that reference other talents
+	 *
+	 * Since abilities gained from talents don't show up in the normal ability
+	 * list they aren't linked properly when another talent modifies them. This
+	 * is pretty rare so we'll handle it manually for now.
+	 *
+	 * @return $this
+	 */
+	protected function talentAbilityLinkTalents()
+	{
+		$this->updateHeroTalent('92ed8c', 'garrosh', ['abilityLinks' => ['Garrosh|11']]);                          // GarroshArmorUpInnerRage -> GarroshArmorUpBodyCheck
+		$this->updateHeroTalent('a389cd', 'orphea',  ['abilityLinks' => ['Orphea|Trait']]);                        // OrpheaInvasiveMiasma -> OrpheaOverflowingChaosInvasiveMiasma
+		$this->updateHeroTalent('71509a', 'varian',  ['abilityLinks' => ['Varian|11', 'Varian|12', 'Varian|13']]); // VarianBannersGloryToTheAlliance -> VarianBannerOf*
+		$this->updateHeroTalent('194af7', 'yrel',    ['abilityLinks' => ['Yrel|Z']]);                              // YrelDivineSteed -> YrelDivineSteedSummonMount
 	}
 }

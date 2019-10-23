@@ -38,7 +38,12 @@ class Filter extends Base
 		'0479e0' => 'Shifting Meteor',
 		'285893' => 'Return', // Molten Core
 		'a7507f' => 'Cancel Return', // Molten Core
+//		'355e2d' => 'Lava Wave', // Molten Core
+		'3ce02a' => 'Empower Sulfuras', // "Active"
 		'f2827a' => 'Gargantuan Stomp',
+		'33434d' => 'Run and Gun', // Overkill
+		'f57681' => 'Minigun', // "Active"
+		'8e2bc8' => 'Holy Light', // https://github.com/HeroesToolChest/HeroesDataParser/issues/59
 	];
 	
 	/**
