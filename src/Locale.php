@@ -197,7 +197,8 @@ class Locale extends Base
 			// Hash the UID
 			$uid = $this->abiltalentUid($id);
 			
-			$return[$uid] = trim($name);
+			// Standardize single quotes and trim
+			$return[$uid] = trim(str_replace("\u{2019}", "'", $name));
 		}
 		
 		return $return;		
@@ -238,6 +239,9 @@ class Locale extends Base
 
 			// Remove tags
 			$description = preg_replace('#<.+?>#', '', $description);
+			
+			// Standardize single quotes
+			$description = str_replace("\u{2019}", "'", $description);
 
 			$return[$uid] = trim(str_replace('   ', '  ', $description));
 		}

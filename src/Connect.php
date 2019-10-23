@@ -48,9 +48,17 @@ class Connect extends Base
 		// Traverse heroes for each ability
 		foreach ($this->heroes as $shortname => $hero)
 		{
-			foreach ($hero['abilities'] as $ability)
+			foreach ($hero['abilities'] as $i => $ability)
 			{
-				$return[$ability['nameId']] = $ability;
+				// Remove duplicates rather than overwrite
+				if (isset($return[$ability['nameId']]))
+				{
+					unset($this->heroes[$shortname]['abilities'][$i]);
+				}
+				else
+				{
+					$return[$ability['nameId']] = $ability;
+				}
 			}
 		}
 		
@@ -92,6 +100,10 @@ class Connect extends Base
 						if (empty($links))
 						{
 							$this->logMessage("Talent {$talent['talentTreeId']} ({$talent['uid']}) missing ability links for: " . implode(', ', $talent['abilityLinks']), 'warning');
+						}
+						else
+						{
+							sort($links);
 						}
 							
 						// Overwrite with the new links

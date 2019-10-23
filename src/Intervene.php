@@ -157,21 +157,20 @@ class Intervene extends Base
 		$this->updateHeroAbility('fbd5a2', 'jaina', ['sub' => false]); // ImprovedIceBlock
 		$this->updateHeroAbility('870ba5', 'kelthuzad', ['sub' => false]); // KelThuzadGlacialSpike
 		
-		// Keep heroics with sub-ability equivalents as primary abilities
-		$this->updateHeroAbility('58759f', 'alexstrasza', ['sub' => false]); // AlexstraszaLifebinder
-		
 		// Change heroic summons' abilities to subunit type
-		$this->updateHeroAbility('fd5603', 'nazeebo', ['type' => 'subunit']); // WitchDoctorGargantuanStompCommand		
+		$this->updateHeroAbility('fd5603', 'nazeebo', ['type' => 'subunit']); // WitchDoctorGargantuanStompCommand
+		
+		// Set ability links on talents that reference other talents
+		$this->talentAbilityLinkTalents();
 
+		/*** Specific heroes ***/
+		
 		// Malthael has the only talent that modifies generic mount
 		$this->updateHeroTalent('3e52a9', 'malthael', ['abilityLinks' => ['Malthael|Z']]); // MalthaelOnAPaleHorse
 
 		// VarianTwinBladesOfFury -> VarianTwinBladesofFury (notice case on "of/Of")
 		// https://github.com/HeroesToolChest/HeroesDataParser/issues/60
 		$this->updateHeroTalent('21df2d', 'varian', ['abilityLinks' => ['Varian|R3']]);
-		
-		// Set ability links on talents that reference other talents
-		$this->talentAbilityLinkTalents();
 		
 		// Set TLV tags
 		$this->heroes['lostvikings']['tags'] = [

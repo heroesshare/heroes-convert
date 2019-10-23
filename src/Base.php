@@ -256,12 +256,12 @@ class Base
 	 */
 	public function updateHeroTalent(string $uid, string $shortname, array $array)
 	{
-		if (! $array = $this->findHeroTalent($uid, $shortname))
+		if (! $index = $this->findHeroTalent($uid, $shortname))
 		{
 			throw new \RuntimeException("Talent not found: {$uid} ($shortname)");
 		}
 		
-		$this->heroes[$shortname]['talents'][$array[0]][$array[1]] =
-			array_replace_recursive($this->heroes[$shortname]['talents'][$array[0]][$array[1]], $array);
+		$this->heroes[$shortname]['talents'][$index[0]][$index[1]] =
+			array_replace_recursive($this->heroes[$shortname]['talents'][$index[0]][$index[1]], $array);
 	}
 }

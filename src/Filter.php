@@ -23,9 +23,11 @@ class Filter extends Base
 	 */
 	protected $abilityUids = [
 		'48f7bd' => 'Summon Mount',
+		'4a0bc2' => 'Summon Mount', // Greymane
 		'ebf134' => 'Unsummon Mount',
 		'88ec35' => 'Hearthstone',
 		'535f70' => 'Hearthstone',
+		'4cc15c' => 'Hearthstone', // Brew
 		'eb6d75' => 'Quick Spray Expression',
 		'8187dd' => 'Quick Voice Line Expression',
 		'b4dc9c' => 'Command Water Elemental',
