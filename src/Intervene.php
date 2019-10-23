@@ -172,7 +172,10 @@ class Intervene extends Base
 		// https://github.com/HeroesToolChest/HeroesDataParser/issues/60
 		$this->updateHeroTalent('21df2d', 'varian', ['abilityLinks' => ['Varian|R3']]);
 		
-		// Set TLV tags
+		// Change Chen's Breath of Fire to be a primary ability
+		$this->updateHeroAbility('727df0', 'chen', ['sub' => false]); // ChenBreathOfFire
+				
+		// Set TLV tags (they are usually on each viking)
 		$this->heroes['lostvikings']['tags'] = [
 			'Escaper',
 			'Helper',
@@ -236,9 +239,16 @@ class Intervene extends Base
 	 */
 	protected function talentAbilityLinkTalents()
 	{
-		$this->updateHeroTalent('92ed8c', 'garrosh', ['abilityLinks' => ['Garrosh|11']]);                          // GarroshArmorUpInnerRage -> GarroshArmorUpBodyCheck
-		$this->updateHeroTalent('a389cd', 'orphea',  ['abilityLinks' => ['Orphea|Trait']]);                        // OrpheaInvasiveMiasma -> OrpheaOverflowingChaosInvasiveMiasma
-		$this->updateHeroTalent('71509a', 'varian',  ['abilityLinks' => ['Varian|11', 'Varian|12', 'Varian|13']]); // VarianBannersGloryToTheAlliance -> VarianBannerOf*
-		$this->updateHeroTalent('194af7', 'yrel',    ['abilityLinks' => ['Yrel|Z']]);                              // YrelDivineSteed -> YrelDivineSteedSummonMount
+		// GarroshArmorUpInnerRage -> GarroshArmorUpBodyCheck
+		$this->updateHeroTalent('92ed8c', 'garrosh', ['abilityLinks' => ['Garrosh|11']]);
+
+		// OrpheaInvasiveMiasma -> OrpheaOverflowingChaosInvasiveMiasma
+		$this->updateHeroTalent('a389cd', 'orphea',  ['abilityLinks' => ['Orphea|Trait'], 'abilityId' => 'Orphea|Trait']);
+
+		// VarianBannersGloryToTheAlliance -> VarianBannerOf*
+		$this->updateHeroTalent('71509a', 'varian',  ['abilityLinks' => ['Varian|11', 'Varian|12', 'Varian|13']]);
+
+		// YrelDivineSteed -> YrelDivineSteedSummonMount
+		$this->updateHeroTalent('194af7', 'yrel',    ['abilityLinks' => ['Yrel|Z']]);
 	}
 }
