@@ -133,7 +133,12 @@ class Output extends Base
 		// Check for subunit
 		if (isset($this->subunits[$hero['shortName']]))
 		{
-			$abilities[$this->subunits[$hero['shortName']]] = $this->prepAbilities($hero['abilities'], true);
+			$subAbilities = $this->prepAbilities($hero['abilities'], true);
+			
+			if (count($subAbilities))
+			{
+				$abilities[$this->subunits[$hero['shortName']]] = $subAbilities;
+			}
 		}
 
 		$return['abilities'] = $abilities;
@@ -208,7 +213,7 @@ class Output extends Base
 				}
 				else 
 				{
-					$return[$key] = (string)$ability[$key];
+					$return[$key] = $ability[$key];
 				}
 			}
 		}

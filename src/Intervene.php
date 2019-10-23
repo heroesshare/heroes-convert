@@ -153,15 +153,18 @@ class Intervene extends Base
 			$this->heroes[$shortname] = $hero;
 		}
 		
-		// Change quest-unlocked activables to primary abilities
+		// Move quest-unlocked activables to primary abilities
 		$this->updateHeroAbility('fbd5a2', 'jaina', ['sub' => false]); // ImprovedIceBlock
 		$this->updateHeroAbility('870ba5', 'kelthuzad', ['sub' => false]); // KelThuzadGlacialSpike
 		
-		// And keep heroics with sub-ability equivalents as primary abilities
+		// Keep heroics with sub-ability equivalents as primary abilities
 		$this->updateHeroAbility('58759f', 'alexstrasza', ['sub' => false]); // AlexstraszaLifebinder
 		
+		// Change heroic summons' abilities to subunit type
+		$this->updateHeroAbility('fd5603', 'nazeebo', ['type' => 'subunit']); // WitchDoctorGargantuanStompCommand		
+
 		// Malthael has the only talent that modifies generic mount
-		$this->updateHeroTalent('3e52a9', 'malthael', ['abilityLinks' => ['Malthael|Z']]);
+		$this->updateHeroTalent('3e52a9', 'malthael', ['abilityLinks' => ['Malthael|Z']]); // MalthaelOnAPaleHorse
 
 		// VarianTwinBladesOfFury -> VarianTwinBladesofFury (notice case on "of/Of")
 		// https://github.com/HeroesToolChest/HeroesDataParser/issues/60
