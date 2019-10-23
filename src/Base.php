@@ -15,7 +15,7 @@
 class Base
 {
 	/**
-	 * Array of heroes in heroes-talent format, indexed by shortname
+	 * Master array of heroes in heroes-talent format, indexed by shortname
 	 *
 	 * @var array
 	 */
@@ -82,6 +82,34 @@ class Base
 	{
 		$this->heroes = $heroes;
 	}
+
+	/**
+	 * Log a message to the appropriate destination
+	 * 
+	 * @param string  $message  Message to log
+	 * @param string  $status   Status level
+	 *
+	 */
+	protected function logMessage($message, $status = 'debug')
+	{
+		if (is_int($this->logLevel) && $this->logLevel === 0)
+		{
+			return;
+		}
+		elseif (is_int($this->logLevel) && $this->logLevels[$status] > $this->logLevel)
+		{
+			return;
+		}
+		elseif (is_array($this->logLevel) && ! in_array($this->logLevels[$status], $this->logLevel))
+		{
+			return;
+		}
+		
+		$log = strtoupper($status) . ' - ' . date('Y-m-d H:i:s') . ' --> ' . $message;
+		
+		// WIP - need to support streams/files/handlers
+		echo $log . PHP_EOL;
+	}
 	
 	/**
 	 * Return the array of formatted data for all heroes
@@ -105,34 +133,6 @@ class Base
 		$this->logLevel = $value;
 		return $this;
 	}
-
-	/**
-	 * Log a message to the appropriate destination
-	 * 
-	 * @param string  $message  Message to log
-	 * @param string  $status   Status level
-	 *
-	 */
-	public function logMessage($message, $status = 'debug')
-	{
-		if (is_int($this->logLevel) && $this->logLevel === 0)
-		{
-			return;
-		}
-		elseif (is_int($this->logLevel) && $this->logLevels[$status] > $this->logLevel)
-		{
-			return;
-		}
-		elseif (is_array($this->logLevel) && ! in_array($this->logLevels[$status], $this->logLevel))
-		{
-			return;
-		}
-		
-		$log = strtoupper($status) . ' - ' . date('Y-m-d H:i:s') . ' --> ' . $message;
-		
-		// WIP - need to support streams/files/handlers
-		echo $log . PHP_EOL;
-	}
 	
 	/**
 	 * Computes a unique hash for an ability or talent from an HDP ID string
@@ -144,5 +144,75 @@ class Base
 	public function abiltalentUid(string $id): string
 	{
 		return substr(md5($id), 0, 6);
+	}
+	
+	/**
+	 * Searches $this->heroes for an ability
+	 *
+	 * @param string   $uid        Ability UID
+	 * @param string   $shortname  Optional hero shortname (to improve performance)
+	 *
+	 * @return array   [shortname, index] to the ability 
+	 */
+	public function findAbility(string $uid, string $shortname = null): array
+	{
+		if ($shortname)
+		{
+			return [$shortname, $this->findHeroAbility($uid, $shortname)];
+		}
+		
+		// Check every hero's abilities
+		foreach ($this->heroes as $shortname => $abilities)
+		{
+			foreach ($abilities as $i => $ability)
+			{
+				if ($ability['uid'] == $uid)
+				{
+					return [$shortname, $i];
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Searches a hero for an ability
+	 *
+	 * @param string   $uid        Ability UID
+	 * @param string   $shortname  Optional hero shortname (to improve performance)
+	 *
+	 * @return int     index to the ability 
+	 */
+	public function findHeroAbility(string $uid, string $shortname): ?int
+	{
+		foreach ($this->heroes[$shortname][$abilities] as $i => $ability)
+		{
+			if ($ability['uid'] == $uid)
+			{
+				return $i;
+			}
+		}
+		
+		$this->logMessage("Ability {$uid} not found for {$shortname}!", 'warning');
+		
+		return null;
+	}
+	
+	/**
+	 * Directly updates an ability in $this->heroes
+	 *
+	 * @param string   $uid        Ability UID
+	 * @param string   $shortname  Hero shortname
+	 * @param array    $array      Array of changes to make
+	 *
+	 * @return string  UID
+	 */
+	public function updateHeroAbility(string $uid, string $shortname, array $array)
+	{
+		if (! $i = $this->findHeroAbility($uid, $shortname))
+		{
+			throw new \RuntimeException("Ability not found: {$uid} ($shortname)");
+		}
+		
+		$this->heroes[$shortname]['abilities'][$i] = array_replace_recursive($this->heroes[$shortname]['abilities'][$i], $array);
 	}
 }
