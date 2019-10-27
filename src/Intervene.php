@@ -140,6 +140,11 @@ class Intervene extends Base
 				{
 					$hero['abilities'][$i]['hotkey'] = 'D';
 				}
+				// Remove hotkeys on traits without cooldowns
+				elseif ($ability['type'] == 'trait' && empty($ability['cooldown']))
+				{
+					unset($hero['abilities'][$i]['hotkey']);
+				}
 				
 				// Check for mana costs per second
 				if (isset($ability['manaCost']) && strlen($ability['manaCost']) > 3)
