@@ -15,7 +15,7 @@
 class Base
 {
 	/**
-	 * Master array of heroes in heroes-talent format, indexed by shortname
+	 * Master array of heroes, indexed by hyperlinkId
 	 *
 	 * @var array
 	 */
@@ -149,26 +149,26 @@ class Base
 	/**
 	 * Searches $this->heroes for an ability
 	 *
-	 * @param string   $uid        Ability UID
-	 * @param string   $shortname  Optional hero shortname (to improve performance)
+	 * @param string   $uid          Ability UID
+	 * @param string   $hyperlinkId  Optional hero hyperlinkId (to improve performance)
 	 *
-	 * @return array   [shortname, index] to the ability 
+	 * @return array   [hyperlinkId, index] to the ability 
 	 */
-	public function findAbility(string $uid, string $shortname = null): array
+	public function findAbility(string $uid, string $hyperlinkId = null): array
 	{
-		if ($shortname)
+		if ($hyperlinkId)
 		{
-			return [$shortname, $this->findHeroAbility($uid, $shortname)];
+			return [$hyperlinkId, $this->findHeroAbility($uid, $hyperlinkId)];
 		}
 		
 		// Check every hero's abilities
-		foreach ($this->heroes as $shortname => $hero)
+		foreach ($this->heroes as $hyperlinkId => $hero)
 		{
 			foreach ($hero['abilities'] as $i => $ability)
 			{
 				if ($ability['uid'] == $uid)
 				{
-					return [$shortname, $i];
+					return [$hyperlinkId, $i];
 				}
 			}
 		}
@@ -177,14 +177,14 @@ class Base
 	/**
 	 * Searches a hero for an ability
 	 *
-	 * @param string   $uid        Ability UID
-	 * @param string   $shortname  Hero shortname
+	 * @param string   $uid          Ability UID
+	 * @param string   $hyperlinkId  Hero hyperlinkId
 	 *
 	 * @return int     index to the ability 
 	 */
-	public function findHeroAbility(string $uid, string $shortname): ?int
+	public function findHeroAbility(string $uid, string $hyperlinkId): ?int
 	{
-		foreach ($this->heroes[$shortname]['abilities'] as $i => $ability)
+		foreach ($this->heroes[$hyperlinkId]['abilities'] as $i => $ability)
 		{
 			if ($ability['uid'] == $uid)
 			{
@@ -192,7 +192,7 @@ class Base
 			}
 		}
 		
-		$this->logMessage("Ability {$uid} not found for {$shortname}!", 'warning');
+		$this->logMessage("Ability {$uid} not found for {$hyperlinkId}!", 'warning');
 		
 		return null;
 	}
@@ -200,34 +200,34 @@ class Base
 	/**
 	 * Directly updates an ability in $this->heroes
 	 *
-	 * @param string   $uid        Ability UID
-	 * @param string   $shortname  Hero shortname
-	 * @param array    $array      Array of changes to make
+	 * @param string   $uid          Ability UID
+	 * @param string   $hyperlinkId  Hero hyperlinkId
+	 * @param array    $array        Array of changes to make
 	 *
 	 * @return string  UID
 	 */
-	public function updateHeroAbility(string $uid, string $shortname, array $array)
+	public function updateHeroAbility(string $uid, string $hyperlinkId, array $array)
 	{
-		if (! $i = $this->findHeroAbility($uid, $shortname))
+		if (! $i = $this->findHeroAbility($uid, $hyperlinkId))
 		{
-			throw new \RuntimeException("Ability not found: {$uid} ($shortname)");
+			throw new \RuntimeException("Ability not found: {$uid} ({$hyperlinkId})");
 		}
 		
-		$this->heroes[$shortname]['abilities'][$i] = array_replace_recursive($this->heroes[$shortname]['abilities'][$i], $array);
+		$this->heroes[$hyperlinkId]['abilities'][$i] = array_replace_recursive($this->heroes[$hyperlinkId]['abilities'][$i], $array);
 	}
 	
 	/**
 	 * Searches a hero for a talent
 	 *
-	 * @param string   $uid        Talent UID
-	 * @param string   $shortname  Hero shortname
-	 * @param int      $level      Optional level (to improve performance)
+	 * @param string   $uid          Talent UID
+	 * @param string   $hyperlinkId  Hero hyperlinkId
+	 * @param int      $level        Optional level (to improve performance)
 	 *
 	 * @return array   [level, index] to the talent 
 	 */
-	public function findHeroTalent(string $uid, string $shortname, int $level = null): array
+	public function findHeroTalent(string $uid, string $hyperlinkId, int $level = null): array
 	{
-		$levels = $level ? [$level => $this->heroes[$shortname]['talents'][$level]] : $this->heroes[$shortname]['talents'];
+		$levels = $level ? [$level => $this->heroes[$hyperlinkId]['talents'][$level]] : $this->heroes[$hyperlinkId]['talents'];
 		
 		foreach ($levels as $level => $talents)
 		{
@@ -240,7 +240,7 @@ class Base
 			}
 		}
 		
-		$this->logMessage("Talent {$uid} not found for {$shortname}!", 'warning');
+		$this->logMessage("Talent {$uid} not found for {$hyperlinkId}!", 'warning');
 		
 		return null;
 	}
@@ -248,20 +248,20 @@ class Base
 	/**
 	 * Directly updates a talent in $this->heroes
 	 *
-	 * @param string   $uid        Talent UID
-	 * @param string   $shortname  Hero shortname
-	 * @param array    $array      Array of changes to make
+	 * @param string   $uid          Talent UID
+	 * @param string   $hyperlinkId  Hero hyperlinkId
+	 * @param array    $array        Array of changes to make
 	 *
 	 * @return string  UID
 	 */
-	public function updateHeroTalent(string $uid, string $shortname, array $array)
+	public function updateHeroTalent(string $uid, string $hyperlinkId, array $array)
 	{
-		if (! $index = $this->findHeroTalent($uid, $shortname))
+		if (! $index = $this->findHeroTalent($uid, $hyperlinkId))
 		{
-			throw new \RuntimeException("Talent not found: {$uid} ($shortname)");
+			throw new \RuntimeException("Talent not found: {$uid} ($hyperlinkId)");
 		}
 		
-		$this->heroes[$shortname]['talents'][$index[0]][$index[1]] =
-			array_replace_recursive($this->heroes[$shortname]['talents'][$index[0]][$index[1]], $array);
+		$this->heroes[$hyperlinkId]['talents'][$index[0]][$index[1]] =
+			array_replace_recursive($this->heroes[$hyperlinkId]['talents'][$index[0]][$index[1]], $array);
 	}
 }

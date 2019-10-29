@@ -120,17 +120,17 @@ class Intervene extends Base
 	public function run()
 	{
 		// Process each hero
-		foreach ($this->heroes as $shortname => $hero)
+		foreach ($this->heroes as $hyperlinkId => $hero)
 		{
 			// Check for a match
-			if (empty($this->extras[$shortname]))
+			if (empty($this->extras[$hyperlinkId]))
 			{
 				throw new \RuntimeException('Supplemental data missing for hero: ' . $hero['name']);
 			}
 			
 			// Apply release patch and heroes-talent ID
-			$hero['id']           = $this->extras[$shortname][0];
-			$hero['releasePatch'] = $this->extras[$shortname][1];
+			$hero['id']           = $this->extras[$hyperlinkId][0];
+			$hero['releasePatch'] = $this->extras[$hyperlinkId][1];
 			
 			// Process each ability
 			foreach ($hero['abilities'] as $i => $ability)
@@ -155,7 +155,7 @@ class Intervene extends Base
 			}
 			
 			// Update the collection
-			$this->heroes[$shortname] = $hero;
+			$this->heroes[$hyperlinkId] = $hero;
 		}
 		
 		// Move quest-unlocked activables to primary abilities
@@ -180,8 +180,8 @@ class Intervene extends Base
 		// Change Chen's Breath of Fire to be a primary ability
 		$this->updateHeroAbility('727df0', 'chen', ['sub' => false]); // ChenBreathOfFire
 				
-		// Set TLV tags (they are usually on each viking)
-		$this->heroes['lostvikings']['tags'] = [
+		// Set TLV tags (they are usually on the individual Vikings)
+		$this->heroes['lostvikings']['descriptors'] = [
 			'Escaper',
 			'Helper',
 			'Overconfident',
@@ -193,17 +193,17 @@ class Intervene extends Base
 		// A few overrides from the old version to look through at some point...
 		
 		// Nasty Vikings...
-		if (strpos($ability['shortname'], 'LostViking') !== false && $ability['type'] == 'subunit')
+		if (strpos($ability['hyperlinkId'], 'LostViking') !== false && $ability['type'] == 'subunit')
 			$ability['type'] = strtolower($raw['type']);
 		
-		// A few manual overrides (shortname => type)
+		// A few manual overrides (nameId => type)
 		$overrides = [
 			'DVaPilotBigShot'                => 'heroic',
 			'DVaPilotPilotMode'              => 'trait',
 			'LostVikingSelectAll'            => 'subunit',
 		];
-		if (isset($overrides[$ability['shortname']]))
-			$ability['type'] = $overrides[$ability['shortname']];
+		if (isset($overrides[$ability['nameId']]))
+			$ability['type'] = $overrides[$ability['nameId']];
 */			
 		
 		return $this;
@@ -217,7 +217,7 @@ class Intervene extends Base
 	protected function addSubunits()
 	{
 		// Process each hero
-		foreach ($this->heroes as $shortname => $hero)
+		foreach ($this->heroes as $hyperlinkId => $hero)
 		{
 			// Add the ID field
 			$this->heroes = $hero;
@@ -227,7 +227,7 @@ class Intervene extends Base
 			$hero = $this->heroFromRaw($raw);
 			
 			// Add it to the collection
-			$this->heroes[$hero['shortname']] = $hero;
+			$this->heroes[$hyperlinkId] = $hero;
 		}
 
 		return $this;

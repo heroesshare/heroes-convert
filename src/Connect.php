@@ -46,14 +46,14 @@ class Connect extends Base
 		$return = [];
 		
 		// Traverse heroes for each ability
-		foreach ($this->heroes as $shortname => $hero)
+		foreach ($this->heroes as $hyperlinkId => $hero)
 		{
 			foreach ($hero['abilities'] as $i => $ability)
 			{
 				// Remove duplicates rather than overwrite
 				if (isset($return[$ability['nameId']]))
 				{
-					unset($this->heroes[$shortname]['abilities'][$i]);
+					unset($this->heroes[$hyperlinkId]['abilities'][$i]);
 				}
 				else
 				{
@@ -73,7 +73,7 @@ class Connect extends Base
 	protected function updateAbilityLinks(array $abilities)
 	{
 		// Traverse heroes for each talent
-		foreach ($this->heroes as $shortname => $hero)
+		foreach ($this->heroes as $hyperlinkId => $hero)
 		{
 			foreach ($hero['talents'] as $level => $talents)
 			{
@@ -107,11 +107,11 @@ class Connect extends Base
 						}
 							
 						// Overwrite with the new links
-						$this->heroes[$shortname]['talents'][$level][$i]['abilityLinks'] = $links;
+						$this->heroes[$hyperlinkId]['talents'][$level][$i]['abilityLinks'] = $links;
 					}
 					
 					// Set the abilityId
-					$this->heroes[$shortname]['talents'][$level][$i]['abilityId'] = $abilityId;
+					$this->heroes[$hyperlinkId]['talents'][$level][$i]['abilityId'] = $abilityId;
 				}
 			}
 		}

@@ -111,19 +111,19 @@ class Locale extends Base
 		//$strings['description']  = $this->heroDescriptions($this->heroStrings['description']);
 				
 		// Traverse heroes and set matching strings
-		foreach ($this->heroes as $shortname => $hero)
+		foreach ($this->heroes as $hyperlinkId => $hero)
 		{
 			foreach (['name', 'type', 'role', 'expandedRole', 'description'] as $key)
 			{
 				if (isset($this->heroStrings[strtolower($key)][$hero['cHeroId']]))
 				{
-					$this->heroes[$shortname][$key] = $this->heroStrings[strtolower($key)][$hero['cHeroId']];
+					$this->heroes[$hyperlinkId][$key] = $this->heroStrings[strtolower($key)][$hero['cHeroId']];
 				}
 			}
 			
-			if (isset($strings['description'][$shortname]))
+			if (isset($strings['description'][$hyperlinkId]))
 			{
-				$this->heroes[$shortname]['description'] = $strings['description'][$shortname];
+				$this->heroes[$hyperlinkId]['description'] = $strings['description'][$hyperlinkId];
 			}
 		}
 		
@@ -148,7 +148,7 @@ class Locale extends Base
 		unset($this->abiltalentStrings);
 		
 		// Traverse heroes and set matching strings
-		foreach ($this->heroes as $shortname => $hero)
+		foreach ($this->heroes as $hyperlinkId => $hero)
 		{
 			// Check each ability
 			foreach ($hero['abilities'] as $i => $ability)
@@ -157,7 +157,7 @@ class Locale extends Base
 				{
 					if (isset($strings[$key][$ability['uid']]))
 					{
-						$this->heroes[$shortname]['abilities'][$i][$key] = $strings[$key][$ability['uid']];
+						$this->heroes[$hyperlinkId]['abilities'][$i][$key] = $strings[$key][$ability['uid']];
 					}
 				}
 			}
@@ -171,7 +171,7 @@ class Locale extends Base
 					{
 						if (isset($strings[$key][$talent['uid']]))
 						{
-							$this->heroes[$shortname]['talents'][$level][$i][$key] = $strings[$key][$talent['uid']];
+							$this->heroes[$hyperlinkId]['talents'][$level][$i][$key] = $strings[$key][$talent['uid']];
 						}
 					}
 				}

@@ -66,26 +66,26 @@ class Filter extends Base
 	protected function filterAbilities()
 	{
 		// Traverse heroes for each ability
-		foreach ($this->heroes as $shortname => $hero)
+		foreach ($this->heroes as $hyperlinkId => $hero)
 		{
 			foreach ($hero['abilities'] as $i => $ability)
 			{
 				// Check for explicit filter
 				if (isset($this->abilityUids[$ability['uid']]))
 				{
-					unset($this->heroes[$shortname]['abilities'][$i]);
+					unset($this->heroes[$hyperlinkId]['abilities'][$i]);
 				}
 				
 				// Remove ancillary abilities
 				if (preg_match('#(Primed|Cancel|DVa.+Off)$#', $ability['nameId']))
 				{
-					unset($this->heroes[$shortname]['abilities'][$i]);
+					unset($this->heroes[$hyperlinkId]['abilities'][$i]);
 				}
 				
 				// Remove subunit abilities for unsupported heroes
-				if ($ability['sub'] && ! isset($this->subunits[$shortname]))
+				if ($ability['sub'] && ! isset($this->subunits[$hyperlinkId]))
 				{
-					unset($this->heroes[$shortname]['abilities'][$i]);
+					unset($this->heroes[$hyperlinkId]['abilities'][$i]);
 				}
 			}
 		}

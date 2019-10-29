@@ -93,7 +93,7 @@ class Parse extends Base
 			$hero = $this->heroFromRaw($raw);
 			
 			// Add it to the collection
-			$this->heroes[$hero['shortName']] = $hero;
+			$this->heroes[$hero['hyperlinkId']] = $hero;
 		}
 		
 		unset($this->herodata);
