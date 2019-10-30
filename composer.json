@@ -1,0 +1,29 @@
+{
+	"name": "tatter/heroes-convert",
+	"description": "File format conversions from HeroesDataParser to heroes-talents",
+	"keywords": [
+		"heroesdataparser",
+		"heroespatchnotes",
+		"blizzard",
+		"heroes",
+		"storm",
+		"hots",
+		"convert",
+		"talents",
+		"abilities",
+		"parse"
+	],
+	"homepage": "https://github.com/tattersoftware/heroes-convert",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Matthew Gatner",
+			"email": "mgatner@tattersoftware.com",
+			"homepage": "https://tattersoftware.com",
+			"role": "Developer"
+		}
+	],
+	"require": {
+		"php": "^7.0"
+	}
+}
