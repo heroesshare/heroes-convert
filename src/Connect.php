@@ -79,35 +79,39 @@ class Connect extends Base
 			{
 				foreach ($talents as $i => $talent)
 				{
-					$abilityId = in_array($talent['type'], ['Active', 'Passive']) ? $hero['hyperlinkId'] . '|' . $talent['type'] : null;
 					$links = [];
 					
-					if (! empty($talent['abilityLinks']))
+					// Seed abilityId for active/passive talents
+					$abilityId = in_array($talent['abilityType'], ['Active', 'Passive']) ? $hero['hyperlinkId'] . '|' . $talent['abilityType'] : null;
+					
+					if (! empty($talent['abilityTalentLinkIds']))
 					{
-						foreach ($talent['abilityLinks'] as $nameId)
+						foreach ($talent['abilityTalentLinkIds'] as $nameId)
 						{
 							if (! isset($abilities[$nameId]))
 							{
-								$this->logMessage("Unable to match ability nameId '{$nameId}' for {$talent['talentTreeId']}", 'info');
+								$this->logMessage("Unable to match ability nameId '{$nameId}' for {$talent['nameId']}", 'info');
 
 								continue;
 							}
-						
+
+							// Set the talent's abilityId to the first matched ability link						
 							$abilityId = $abilityId ?? $abilities[$nameId]['abilityId'] ?? null;
 							$links[]   = $abilities[$nameId][$this->linkKey];
 						}
 					
 						if (empty($links))
 						{
-							$this->logMessage("Talent {$talent['talentTreeId']} ({$talent['uid']}) missing ability links for: " . implode(', ', $talent['abilityLinks']), 'warning');
+							$this->logMessage("Talent {$talent['nameId']} ({$talent['uid']}) missing ability links for: " . implode(', ', $talent['abilityTalentLinkIds']), 'warning');
 						}
 						else
 						{
 							sort($links);
 						}
 							
-						// Overwrite with the new links
+						// Add the new links and remvoe the old
 						$this->heroes[$hyperlinkId]['talents'][$level][$i]['abilityLinks'] = $links;
+						unset($this->heroes[$hyperlinkId]['talents'][$level][$i]['abilityTalentLinkIds']);
 					}
 					
 					// Set the abilityId

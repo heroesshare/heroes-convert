@@ -243,7 +243,7 @@ class Locale extends Base
 			// Standardize single quotes
 			$description = str_replace("\u{2019}", "'", $description);
 
-			$return[$uid] = trim(str_replace('   ', '  ', $description));
+			$return[$uid] = trim(str_replace('   ', '  ', $description), " \t\n\r\0\x0B\xC2\xA0");
 		}
 		
 		return $return;		

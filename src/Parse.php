@@ -83,14 +83,20 @@ class Parse extends Base
 	 */
 	public function run()
 	{
-		// Process each raw hero array
-		foreach ($this->herodata as $cHeroId => $raw)
+		// Process each hero array
+		foreach ($this->herodata as $cHeroId => $hero)
 		{
 			// Inject the cHeroId
-			$raw['cHeroId'] = $cHeroId;
+			$hero['cHeroId'] = $cHeroId;
 			
-			// Parse it into heroes-talent format
-			$hero = $this->heroFromRaw($raw);
+			// Reformat abilities
+			$hero['abilities'] = $this->reformatAbilities($hero);
+
+			// Reformat talents
+			$hero['talents'] = $this->reformatTalents($hero);
+
+			// Remove extraneous fields
+			unset($hero['subAbilities'], $hero['heroUnits']);
 			
 			// Add it to the collection
 			$this->heroes[$hero['hyperlinkId']] = $hero;
@@ -102,43 +108,37 @@ class Parse extends Base
 	}
 
 	/**
-	 * Convert a single raw HDP hero into heroes-talent format
+	 * Standardize abilities for a single hero
 	 *
-	 * @param array    $raw  Array of hero data from HDP
+	 * @param array   $raw  Array of hero data from HDP
 	 *
-	 * @return array
+	 * @return array  Reformatted abilities
 	 */
-	protected function heroFromRaw(array $raw): array
+	protected function reformatAbilities(array $raw): array
 	{
-		// Start with the identity info
-		$hero = [
-			'shortName'    => strtolower($raw['hyperlinkId']),
-			'hyperlinkId'  => $raw['hyperlinkId'],
-			'attributeId'  => $raw['attributeId'],
-			'cHeroId'      => $raw['cHeroId'],
-			'cUnitId'      => $raw['unitId'],
-			'releaseDate'  => $raw['releaseDate'],
-		];
+		// Consolidate abilities and subAbilities from the hero and its heroUnits
+		$abilities = $this->parseAbilities($raw['abilities']);
 		
-		// Add the icon
-		$hero['icon'] = $hero['shortName'] . '.png';
-		
-		// Add tags
-		$hero['tags'] = $raw['descriptors'] ?? [];
-		
-		// Parse and add abilities
-		$hero['abilities'] = $this->addAbilitiesExtras($hero['hyperlinkId'], $this->abilitiesFromRaw($raw));
+		// Check for subAbilities (e.g. Odin)
+		if (isset($raw['subAbilities']))
+		{
+			$abilities = array_merge($abilities, $this->parseSubAbilities(reset($raw['subAbilities'])));
+		}
 
-		// Parse and add talents
-		$hero['talents'] = $this->talentsFromRaw($raw);
-
-		return $hero;
+		// Check for heroUnits (e.g. Worgen)
+		if (isset($raw['heroUnits']))
+		{
+			$abilities = array_merge($abilities, $this->parseHeroUnitAbilities($raw['heroUnits']));
+		}
+		
+		// Add the extras and return
+		return $this->addAbilitiesExtras($raw['hyperlinkId'], $abilities);
 	}
 
 	/**
 	 * Set hotkeys and ability codes for a hero's abilities
 	 *
-	 * @param string  $hyperlinkid  The hero's hyperlinkId
+	 * @param string  $hyperlinkId  The hero's hyperlinkId
 	 * @param array   $abilities    Array of heroes-talents abilities
 	 *
 	 * @return array  Updated abilities
@@ -156,14 +156,22 @@ class Parse extends Base
 		// Process each ability
 		foreach ($abilities as $ability)
 		{
-			// Update the hotkey on Actives
-			if ($ability['type'] == 'activable')
+			// Use the abilityType to set hotkeys
+			if ($ability['abilityType'] == 'Heroic')
+			{
+				$ability['hotkey'] = 'R';
+			}
+			elseif ($ability['abilityType'] == 'Active' || $ability['type'] == 'Activable')
 			{
 				$activables++;
 				$ability['hotkey'] = (string)$activables;
 			}
+			elseif (strlen($ability['abilityType']) == 1)
+			{
+				$ability['hotkey'] = $ability['abilityType'];
+			}
 			
-			// Determine the code (e.g Q1) - hotkey concat (# hotkey abilities + 1)
+			// Set the code (e.g Q1) as "hotkey + (# hotkey abilities + 1)"
 			switch ($ability['type'])
 			{
 				case 'trait': $code = 'D'; $ability['trait'] = true; break;
@@ -200,81 +208,9 @@ class Parse extends Base
 		
 		return $return;
 	}
-
-	/**
-	 * Standardize abilities from a single raw hero
-	 *
-	 * @param array   $raw  Array of hero data from HDP
-	 *
-	 * @return array  Abilities in heroes-talent format
-	 */
-	protected function abilitiesFromRaw(array $raw): array
-	{
-		// Consolidate abilities and subAbilities from the hero and its heroUnits
-		$abilities = $this->parseAbilities($raw['abilities']);
-		
-		// Check for subAbilities (e.g. Odin)
-		if (isset($raw['subAbilities']))
-		{
-			$abilities = array_merge($abilities, $this->parseSubAbilities(reset($raw['subAbilities'])));
-		}
-
-		// Check for heroUnits (e.g. Worgen)
-		if (isset($raw['heroUnits']))
-		{
-			$abilities = array_merge($abilities, $this->parseHeroUnitAbilities($raw['heroUnits']));
-		}
-		
-		return $abilities;
-	}
-
-	/**
-	 * Format a single ability from HDP raw to heroes-talent
-	 *
-	 * @param array   $raw  HDP ability
-	 *
-	 * @return array  Ability in heroes-talent format
-	 */
-	protected function abilityFromRaw(array $raw): array
-	{
-		// Start with basic info
-		$ability = [
-			'uid'    => $this->uidFromRaw($raw),
-			'nameId' => $raw['nameId'], // used for abilityLinks
-			'icon'   => strtolower(str_replace("'", '', $raw['icon'])), // strip single quotes like Kel'thuzad
-			'type'   => strtolower($raw['type']),
-		];
-		
-		// Conditional metadata
-		if (isset($raw['subunit']))
-		{
-			$ability['subunit'] = $raw['subunit'];
-		}
-		if (isset($raw['herounit']))
-		{
-			$ability['herounit'] = $raw['herounit'];
-		}
-		$ability['sub'] = isset($ability['subunit']) || isset($ability['herounit']);
-		
-		// Use abilityType to set the hotkey
-		if ($raw['abilityType'] == 'Heroic')
-		{
-			$ability['hotkey'] = 'R';
-		}
-		elseif ($raw['abilityType'] == 'Active')
-		{
-			$ability['hotkey'] = '1';
-		}
-		elseif (strlen($raw['abilityType']) == 1)
-		{
-			$ability['hotkey'] = $raw['abilityType'];
-		}
-
-		return $ability;
-	}
 	
 	/**
-	 * Computes a unique hash for an ability or talent from a raw HDP array
+	 * Computes a unique hash for an ability or talent
 	 *
 	 * @param array   $raw  Raw HDP array
 	 *
@@ -289,8 +225,7 @@ class Parse extends Base
 		{
 			if (! isset($raw[$key]))
 			{
-				var_dump($raw);
-				die();
+				throw new \RuntimeException('Array missing required field "{$key}" in UID calculation: ' . print_r($raw, true));
 			}
 			$values[] = $raw[$key];
 		}
@@ -302,27 +237,31 @@ class Parse extends Base
 	}   
 
 	/**
-	 * Format hero abilities for heroes-talent
+	 * Reformat hero abilities
 	 *
 	 * @param array   $raw  Raw HDP abilities
 	 *
-	 * @return array  Abilities in heroes-talent format
+	 * @return array
 	 */
-	protected function parseAbilities(array $abilities, string $subunit = null, string $herounit = null): array
+	protected function parseAbilities(array $types, string $subunit = null, string $herounit = null): array
 	{
 		$return = [];
 		
 		// Types: basic, heroic, trait, hearth, mount, activable, spray, voice
-		foreach ($abilities as $type => $raws)
+		foreach ($types as $type => $abilities)
 		{
-			foreach ($raws as $raw)
+			foreach ($abilities as $ability)
 			{
-				// Add extra info
-				$raw['type']     = $type;
-				$raw['subunit']  = $subunit;
-				$raw['herounit'] = $herounit;
+				// Add the UID
+				$ability['uid'] = $this->uidFromRaw($ability);
 
-				$return[] = $this->abilityFromRaw($raw);
+				// Add metadata
+				$ability['type']     = $type;
+				$ability['subunit']  = $subunit;
+				$ability['herounit'] = $herounit;
+				$ability['sub']      = $subunit || $herounit;
+		
+				$return[] = $ability;
 			}
 		}
 
@@ -330,11 +269,11 @@ class Parse extends Base
 	}
 	
 	/**
-	 * Format hero subAbilities for heroes-talent
+	 * Flatten and reformat hero subAbilities
 	 *
-	 * @param array   $raw  Raw HDP subAbilities
+	 * @param array   $subAbilities  HDP subAbilities array
 	 *
-	 * @return array  Abilities in heroes-talent format
+	 * @return array
 	 */
 	protected function parseSubAbilities(array $subAbilities, string $herounit = null): array
 	{
@@ -349,11 +288,11 @@ class Parse extends Base
 	}
 	
 	/**
-	 * Format heroUnit abilities for heroes-talent
+	 * Flatten and reformat heroUnit abilities
 	 *
-	 * @param array   $raw  Raw HDP heroUnits
+	 * @param array   $heroUnits  HDP heroUnits array
 	 *
-	 * @return array  Abilities in heroes-talent format
+	 * @return array
 	 */
 	protected function parseHeroUnitAbilities(array $heroUnits): array
 	{
@@ -379,62 +318,30 @@ class Parse extends Base
 	}
 	
 	/**
-	 * Standardize talents from a single raw hero
+	 * Reformat talents for a single hero
 	 *
-	 * @param array   $raw  Array of hero data from HDP
+	 * @param array   $hero  Array of hero data from HDP
 	 *
-	 * @return array  Talents in heroes-talent format
+	 * @return array  Reformatted talents
 	 */
-	protected function talentsFromRaw(array $raw): array
+	protected function reformatTalents(array $hero): array
 	{
 		$return = [];
 
 		// Process talents by level
-		foreach ($raw['talents'] as $level => $talents)
+		foreach ($hero['talents'] as $level => $talents)
 		{
 			$level = str_replace('level', '', $level);
 			
 			foreach ($talents as $i => $talent)
 			{
+				$talent['uid']   = $this->uidFromRaw($talent);
 				$talent['level'] = $level;
-				$return[$level][$i] = $this->talentFromRaw($talent);
+				
+				$return[$level][$i] = $talent;
 			}
 		}
 
 		return $return;
-	}
-	
-	/**
-	 * Format a single talent from HDP raw to heroes-talent
-	 *
-	 * @param array   $raw  HDP talent
-	 *
-	 * @return array  Talent in heroes-talent format
-	 */
-	protected function talentFromRaw(array $raw): array
-	{
-		// Start with basic info
-		$talent = [
-			'uid'          => $this->uidFromRaw($raw),
-			'tooltipId'    => $raw['buttonId'],
-			'talentTreeId' => $raw['nameId'],
-			'icon'         => strtolower(str_replace("'", '', $raw['icon'])), // replace single quotes in filename
-			'type'         => $raw['abilityType'],
-			'sort'         => $raw['sort'],
-		];
-
-		// Conditional quest
-		if (! empty($raw['isQuest']))
-		{
-			$talent['isQuest'] = true;
-		}
-		
-		// Conditional links
-		if (isset($raw['abilityTalentLinkIds']))
-		{
-			$talent['abilityLinks'] = $raw['abilityTalentLinkIds'];
-		}
-
-		return $talent;
 	}
 }

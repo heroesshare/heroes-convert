@@ -54,14 +54,15 @@ class Output extends Base
 			if ($json === false)
 			{
 				var_dump($array);
-				throw new \RuntimeException('Error #' . json_last_error() . ' parsing ' . $hero['shortName'] . ': ' . json_last_error_msg());
+				throw new \RuntimeException('Error #' . json_last_error() . ' parsing ' . $hero['hyperlinkId'] . ': ' . json_last_error_msg());
 			}
+			unset($array);
 
 			// Adjust the spacing to be compatible with heroes-talents
 			$json = str_replace('    ', '  ', $json);
 
 			// Write out to the file
-			$path = $this->directory . $hero['shortName'] . '.json';
+			$path = $this->directory . strtolower($hero['hyperlinkId']) . '.json';
 			$result = file_put_contents($path, $json);
 			
 			if (empty($result))
@@ -104,7 +105,7 @@ class Output extends Base
 	}
 	
 	/**
-	 * Preps a hero for output
+	 * Preps a hero for output in heroes-talent format
 	 *
 	 * @param array $hero
 	 *
@@ -112,40 +113,44 @@ class Output extends Base
 	 */
 	protected function prepHero(array $hero): array
 	{
-		$return = [];
-		
-		// Build the array in precise order
-		foreach (['id', 'shortName', 'attributeId', 'cHeroId', 'cUnitId', 'name', 'icon', 
-			'role', 'expandedRole', 'type', 'releaseDate', 'releasePatch', 'tags'] as $key)
-		{
-			if (isset($hero[$key]))
-			{
-				// Make sure numericals are numbers
-				$return[$key] = is_numeric($hero[$key]) ? (float)$hero[$key] : $hero[$key];
-			}
-		}
-		
-		// Abilities are categorized by hero's name and conditional subunit
+		// Build the hero in precise order
+		$return = [
+			'id'           => (int)$hero['id'],
+			'shortName'    => strtolower($hero['hyperlinkId']),
+			'attributeId'  => $hero['attributeId'],
+			'cHeroId'      => $hero['cHeroId'],
+			'cUnitId'      => $hero['unitId'],
+			'name'         => $hero['name'],
+			'icon'         => strtolower($hero['hyperlinkId']) . '.png',
+			'role'         => $hero['role'],
+			'expandedRole' => $hero['expandedRole'],
+			'type'         => $hero['type'],
+			'releaseDate'  => $hero['releaseDate'],
+			'releasePatch' => $hero['releasePatch'],
+			'tags'         => $hero['descriptors'] ?? [],
+		];
+
+		// Ability are categories are hyperLinkID and conditional subunit
 		$abilities = [
 			$hero['hyperlinkId'] => $this->prepAbilities($hero['abilities'])
 		];
 
 		// Check for subunit
-		if (isset($this->subunits[$hero['shortName']]))
+		if (isset($this->subunits[$hero['hyperlinkId']]))
 		{
 			$subAbilities = $this->prepAbilities($hero['abilities'], true);
 			
 			if (count($subAbilities))
 			{
-				$abilities[$this->subunits[$hero['shortName']]] = $subAbilities;
+				$abilities[$this->subunits[$hero['hyperlinkId']]] = $subAbilities;
 			}
 		}
 
+		// Add skills
 		$return['abilities'] = $abilities;
-		
 		$return['talents']   = $this->prepTalents($hero['talents']);
 		
-		return $return;
+		return $this->stripNulls($return);
 	}
 	
 	/**
@@ -193,32 +198,22 @@ class Output extends Base
 	 */
 	protected function prepAbility(array $ability): array
 	{
-		$return = ['uid' => $ability['uid']];
+		// Build the ability in precise order
+		$return = [
+			'uid'           => $ability['uid'],
+			'name'          => $ability['name'],
+			'description'   => $ability['description'],
+			'hotkey'        => $ability['hotkey'] ?? null,
+			'trait'         => $ability['trait'] ?? null,
+			'abilityId'     => $ability['abilityId'],
+			'cooldown'      => isset($ability['cooldown']) ? (float)$ability['cooldown'] : null,
+			'manaCost'      => isset($ability['manaCost']) ? (float)$ability['manaCost'] : null,
+			'manaPerSecond' => isset($ability['manaPerSecond']) ? (bool)$ability['manaPerSecond'] : null,
+			'icon'          => strtolower(str_replace("'", '', $ability['icon'])),
+			'type'          => strtolower($ability['type']),
+		];
 		
-		// Build the array in precise order
-		foreach (['name', 'description', 'hotkey', 'trait', 'abilityId',
-			'cooldown', 'manaCost', 'manaPerSecond', 'icon', 'type'] as $key)
-		{
-			if (isset($ability[$key]))
-			{
-				// Hotkeys are always strings
-				if ($key == 'hotkey')
-				{
-					$return[$key] = (string)$ability[$key];
-				}
-				// Make sure numericals are numbers
-				elseif (is_numeric($ability[$key]))
-				{
-					$return[$key] = (float)$ability[$key];
-				}
-				else 
-				{
-					$return[$key] = $ability[$key];
-				}
-			}
-		}
-		
-		return $return;
+		return $this->stripNulls($return);
 	}
 	
 	/**
@@ -260,19 +255,37 @@ class Output extends Base
 	 */
 	protected function prepTalent(array $talent): array
 	{
-		$return = [];
+		// Build the talent in precise order
+		$return = [
+			'tooltipId'    => $talent['buttonId'],
+			'talentTreeId' => $talent['nameId'],
+			'name'         => $talent['name'],
+			'description'  => $talent['description'],
+			'icon'         => strtolower(str_replace("'", '', $talent['icon'])),
+			'type'         => $talent['abilityType'],
+			'sort'         => (int)$talent['sort'],
+			'cooldown'     => isset($talent['cooldown']) ? (float)$talent['cooldown'] : null,
+			'isQuest'      => $talent['isQuest'] ?? null,
+			'abilityId'    => $talent['abilityId'],
+			'abilityLinks' => $talent['abilityLinks'] ?? null,
+		];
 		
-		// Build the array in precise order
-		foreach (['tooltipId', 'talentTreeId', 'name', 'description', 'icon',
-			'type', 'sort', 'cooldown', 'isQuest', 'abilityId', 'abilityLinks'] as $key)
-		{
-			if (isset($talent[$key]))
+		return $this->stripNulls($return);
+	}
+	
+	/**
+	 * Strips null values from an array
+	 *
+	 * @param array $array
+	 *
+	 * @return array
+	 */
+	protected function stripNulls(array $array): array
+	{
+		return array_filter($array, function($value)
 			{
-				// Make sure numericals are numbers
-				$return[$key] = is_numeric($talent[$key]) ? (float)$talent[$key] : $talent[$key];
+				return ! is_null($value);
 			}
-		}
-		
-		return $return;
+		);
 	}
 }

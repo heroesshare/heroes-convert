@@ -55,22 +55,22 @@ class Base
 	 * @var array
 	 */
 	protected $subunits = [
-		'valeera'     => 'ValeeraStealth',
-		'uther'       => 'UtherEternalDevotion',
-		'tychus'      => 'TychusOdinNoHealth',
-		'nazeebo'     => 'WitchDoctorGargantuan',
-		'leoric'      => 'LeoricUndyingTrait',
-		'greymane'    => 'GreymaneWorgenForm',
-		'chen'        => 'ChenStormEarthFire',
-		'lostvikings' => 'LostVikingsLongboatRaidNewer',
-		'fenix'       => 'FenixPhaseBomb',
-		'lucio'       => 'LucioCrossfade',
-		'jaina'       => 'JainaTraitFrostbite',
-		'kelthuzad'   => 'KelThuzadMasterOfTheColdDark',
-		'ragnaros'    => 'RagnarosBigRag',
-		'alexstrasza' => 'AlexstraszaDragon',
-		'abathur'     => 'AbathurSymbiote',
-		'dva'         => 'D.VaPilot',
+		'Valeera'     => 'ValeeraStealth',
+		'Uther'       => 'UtherEternalDevotion',
+		'Tychus'      => 'TychusOdinNoHealth',
+		'Nazeebo'     => 'WitchDoctorGargantuan',
+		'Leoric'      => 'LeoricUndyingTrait',
+		'Greymane'    => 'GreymaneWorgenForm',
+		'Chen'        => 'ChenStormEarthFire',
+		'LostVikings' => 'LostVikingsLongboatRaidNewer',
+		'Fenix'       => 'FenixPhaseBomb',
+		'Lucio'       => 'LucioCrossfade',
+		'Jaina'       => 'JainaTraitFrostbite',
+		'KelThuzad'   => 'KelThuzadMasterOfTheColdDark',
+		'Ragnaros'    => 'RagnarosBigRag',
+		'Alexstrasza' => 'AlexstraszaDragon',
+		'Abathur'     => 'AbathurSymbiote',
+		'DVa'         => 'D.VaPilot',
 	];
 
 	/**
@@ -208,7 +208,9 @@ class Base
 	 */
 	public function updateHeroAbility(string $uid, string $hyperlinkId, array $array)
 	{
-		if (! $i = $this->findHeroAbility($uid, $hyperlinkId))
+		$i = $this->findHeroAbility($uid, $hyperlinkId);
+		
+		if (is_null($i))
 		{
 			throw new \RuntimeException("Ability not found: {$uid} ({$hyperlinkId})");
 		}
