@@ -53,6 +53,7 @@ class Connect extends Base
 				// Remove duplicates rather than overwrite
 				if (isset($return[$ability['nameId']]))
 				{
+					// WIP - this is causing Samuro to lose his trait!
 					unset($this->heroes[$hyperlinkId]['abilities'][$i]);
 				}
 				else
@@ -109,9 +110,8 @@ class Connect extends Base
 							sort($links);
 						}
 							
-						// Add the new links and remvoe the old
+						// Add the new links
 						$this->heroes[$hyperlinkId]['talents'][$level][$i]['abilityLinks'] = $links;
-						unset($this->heroes[$hyperlinkId]['talents'][$level][$i]['abilityTalentLinkIds']);
 					}
 					
 					// Set the abilityId

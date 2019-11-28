@@ -174,6 +174,7 @@ class Intervene extends Base
 
 		// Tweak some inconsistent trait hotkeys
 		// https://github.com/HeroesToolChest/HeroesDataParser/issues/64
+		$this->updateHeroAbility('c6b01f', 'Abathur', ['hotkey' => null]); // LocustStrain
 		$this->updateHeroAbility('0c414a', 'Artanis', ['hotkey' => null]); // ShieldOverload
 		$this->updateHeroAbility('c3bc73', 'Falstad', ['hotkey' => null]); // Tailwind
 		$this->updateHeroAbility('9109fa', 'Varian',  ['hotkey' => null]); // HeroicStrike

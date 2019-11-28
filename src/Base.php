@@ -141,7 +141,7 @@ class Base
 	 *
 	 * @return string  UID
 	 */
-	public function abiltalentUid(string $id): string
+	public function skillUid(string $id): string
 	{
 		return substr(md5($id), 0, 6);
 	}

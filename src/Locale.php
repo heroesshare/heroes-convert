@@ -17,6 +17,13 @@ require_once 'Base.php';
 class Locale extends Base
 {
 	/**
+	 * Array of metadata from HDP file.
+	 *
+	 * @var array
+	 */
+	protected $metadata;
+
+	/**
 	 * Array of unit strings from HDP file.
 	 *
 	 * @var array
@@ -28,7 +35,7 @@ class Locale extends Base
 	 *
 	 * @var array
 	 */
-	protected $abiltalentStrings;
+	protected $skillStrings;
 	
 	/**
 	 * Load data from the the game strings file.
@@ -77,12 +84,50 @@ class Locale extends Base
 			throw new \RuntimeException('Invalid gameStrings file: ' . $path);
 		}
 
-		$this->heroStrings       = $array['gamestrings']['unit'];
-		$this->abiltalentStrings = $array['gamestrings']['abiltalent'];
+		$this->metadata     = $array['meta'];
+		$this->heroStrings  = $array['gamestrings']['unit'];
+		$this->skillStrings = $array['gamestrings']['abiltalent'];
 
 		$this->logMessage('Gamestrings loaded: version ' . $array['meta']['version'] . ', locale ' . $array['meta']['locale']);
 
 		unset($array);
+	}
+	
+	/**
+	 * Return the metadata for the loaded file
+	 *
+	 * @return array
+	 */
+	public function getMetadata(): array
+	{
+		return $this->metadata;
+	}
+	
+	/**
+	 * Return the array of loaded hero gamestrings
+	 *
+	 * @return array
+	 */
+	public function getHeroStrings(): array
+	{
+		return $this->heroStrings;
+	}
+	
+	/**
+	 * Return reformatted array of loaded ability & talent gamestrings
+	 *
+	 * @return array  [type => [uid => value]]
+	 */
+	public function getSkillStrings(): array
+	{
+		$strings = [];
+		
+		$strings['name']        = $this->skillNames($this->skillStrings['name']);
+		$strings['description'] = $this->skillDescriptions($this->skillStrings['full']);
+		$strings['cooldown']    = $this->skillCooldowns($this->skillStrings['cooldown']);
+		$strings['manaCost']    = $this->skillManaCosts($this->skillStrings['energy']);
+		
+		return $strings;
 	}
 
 	/**
@@ -95,7 +140,7 @@ class Locale extends Base
 		$strings = [];
 		
 		$this->addHeroStrings();
-		$this->addAbiltalentStrings();
+		$this->addSkillStrings();
 		
 		return $this;
 	}
@@ -136,16 +181,16 @@ class Locale extends Base
 	 *
 	 * @return array
 	 */
-	protected function addAbiltalentStrings()
+	protected function addSkillStrings()
 	{
 		// Get each set of strings
-		$strings['name']        = $this->abiltalentNames($this->abiltalentStrings['name']);
-		$strings['description'] = $this->abiltalentDescriptions($this->abiltalentStrings['full']);
-		$strings['cooldown']    = $this->abiltalentCooldowns($this->abiltalentStrings['cooldown']);
-		$strings['manaCost']    = $this->abiltalentManaCosts($this->abiltalentStrings['energy']);
+		$strings['name']        = $this->skillNames($this->skillStrings['name']);
+		$strings['description'] = $this->skillDescriptions($this->skillStrings['full']);
+		$strings['cooldown']    = $this->skillCooldowns($this->skillStrings['cooldown']);
+		$strings['manaCost']    = $this->skillManaCosts($this->skillStrings['energy']);
 		
 		// Free up some memory
-		unset($this->abiltalentStrings);
+		unset($this->skillStrings);
 		
 		// Traverse heroes and set matching strings
 		foreach ($this->heroes as $hyperlinkId => $hero)
@@ -188,14 +233,14 @@ class Locale extends Base
 	 *
 	 * @return array
 	 */
-	protected function abiltalentNames(array $names): array
+	protected function skillNames(array $names): array
 	{
 		$return = [];
 		
 		foreach ($names as $id => $name)
 		{
 			// Hash the UID
-			$uid = $this->abiltalentUid($id);
+			$uid = $this->skillUid($id);
 			
 			// Standardize single quotes and trim
 			$return[$uid] = trim(str_replace("\u{2019}", "'", $name));
@@ -212,18 +257,18 @@ class Locale extends Base
 	 *  becoming Protected and Unstoppable. After, if he took damage from an enemy
 	 *  Hero, he sends a shockwave that deals <c val=\"bfd4fd\">275~~0.04~~</c> damage.
 	 *
-	 * @param array   $descriptions  HDP abiltalent description gamestrings
+	 * @param array   $descriptions  HDP skill description gamestrings
 	 *
 	 * @return array
 	 */
-	protected function abiltalentDescriptions(array $descriptions): array
+	protected function skillDescriptions(array $descriptions): array
 	{
 		$return = [];
 
 		foreach ($descriptions as $id => $description)
 		{
 			// Hash the UID
-			$uid = $this->abiltalentUid($id);
+			$uid = $this->skillUid($id);
 			
 			// Expand scaling values, e.g. "~~0.04~~" => "(+4% per level)"
 			$description = preg_replace_callback('#~~0\.0\d+~~#',
@@ -256,14 +301,14 @@ class Locale extends Base
 	 *
 	 * @return array
 	 */
-	protected function abiltalentCooldowns(array $cooldowns): array
+	protected function skillCooldowns(array $cooldowns): array
 	{
 		$return = [];
 		
 		foreach ($cooldowns as $id => $cooldown)
 		{
 			// Hash the UID
-			$uid = $this->abiltalentUid($id);
+			$uid = $this->skillUid($id);
 			
 			// Remove tags
 			$cooldown = preg_replace('#<.+?>#', '', $cooldown);
@@ -284,14 +329,14 @@ class Locale extends Base
 	 *
 	 * @return array
 	 */
-	protected function abiltalentManaCosts(array $costs): array
+	protected function skillManaCosts(array $costs): array
 	{
 		$return = [];
 		
 		foreach ($costs as $id => $cost)
 		{
 			// Hash the UID
-			$uid = $this->abiltalentUid($id);
+			$uid = $this->skillUid($id);
 			
 			// Find the colon before the actual cost
 			$pos = strrpos($cost, ':');

@@ -233,7 +233,7 @@ class Parse extends Base
 
 		$str = implode('|', $values);
 		
-		return $this->abiltalentUid($str);
+		return $this->skillUid($str);
 	}   
 
 	/**
