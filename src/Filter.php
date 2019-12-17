@@ -28,6 +28,7 @@ class Filter extends Base
 		'88ec35' => 'Hearthstone',
 		'535f70' => 'Hearthstone',
 		'4cc15c' => 'Hearthstone', // Brew
+		'74d5bb' => 'Hearthstone', // Deathwing
 		'eb6d75' => 'Quick Spray Expression',
 		'8187dd' => 'Quick Voice Line Expression',
 		'b4dc9c' => 'Command Water Elemental',
