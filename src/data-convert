@@ -15,9 +15,25 @@ ini_set('display_startup_errors', '1');
 // Verify proper usage
 $script = $argv[0];
 
-if (empty($argv[1]) || empty($argv[2]))
+if (empty($argv[1]))
 {
-	echo 'Usage: ./heroes-convert herodata_localized.json gamestrings_enus.json [outputDirectory]' . PHP_EOL;
+	echo 'Usage: ./heroes-convert path/to/heroesdata/x.xx.x.xxxxx [outputDirectory]' . PHP_EOL;
+	return;
+}
+$patchDir = rtrim($argv[1], '/') . '/';
+
+// Locate herodata files
+$files = glob($patchDir . 'data/herodata_*_localized.json');
+if (! $herodataPath = reset($files))
+{
+	echo 'ERROR: Unable to locate herodata file from ' . $patchDir . PHP_EOL;
+	return;
+}
+// Locate gamestrings files
+$files = glob($patchDir . 'gamestrings/gamestrings_*_enus.json');
+if (! $gamestringsPath = reset($files))
+{
+	echo 'ERROR: Unable to locate gamestrings file from ' . $patchDir . PHP_EOL;
 	return;
 }
 
@@ -30,7 +46,7 @@ require 'Output.php';
 require 'Parse.php';
 
 // Parse hero data
-$parse  = new Parse($argv[1]);
+$parse  = new Parse($herodataPath);
 $heroes = $parse->run()->getHeroes();
 unset($parse);
 
@@ -45,7 +61,7 @@ $heroes  = $connect->run()->getHeroes();
 unset($connect);
 
 // Add localized game strings
-$locale = new Locale($heroes, $argv[2]);
+$locale = new Locale($heroes, $gamestringsPath);
 $heroes = $locale->run()->getHeroes();
 unset($locale);
 
@@ -58,9 +74,13 @@ unset($intervene);
 $output = new Output($heroes);
 unset($heroes);
 
-if (! empty($argv[3]))
+if (empty($argv[2]))
 {
-	$output->setDirectory($argv[3]);
+	$output->setDirectory(getcwd() . '/hero');
+}
+else
+{
+	$output->setDirectory($argv[2]);
 }
 
 $output->run();
