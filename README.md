@@ -20,9 +20,9 @@ way to acquire the data is from [heroes-data](https://github.com/HeroesToolChest
 a repo of pre-parsed game data from HeroesDataParser.
 
 In the **src** folder there is an executable script, `data-convert`. This script takes
-as parameters the localized herodata file and a locale-specific gamestrings file:
+as a parameter the path to the herodata patch:
 
-	./data-convert herodata_localized.json gamestrings_enus.json
+	./data-convert /path/to/heroes-data/heroesdata/2.49.1.77662
 
 You may supply an optional third parameter for an output directory, or it will default to
 the current directory in the **hero** subfolder.
@@ -38,7 +38,7 @@ and a bulk `rename` command to remove apostrophes (included with most Linux dist
 
 The executable script takes the **abilitytalents** directory as a parameter:
 
-	./images-convert /path/to/images/abilitytalents
+	./images-convert /path/to/heroes-images/heroesimages/abilitytalents
 
 You may supply an optional second parameter for an output directory, or it will default to
 the current directory in the **talents** subfolder.

@@ -17,7 +17,7 @@ $script = $argv[0];
 
 if (empty($argv[1]))
 {
-	echo 'Usage: ./heroes-convert path/to/heroesdata/x.xx.x.xxxxx [outputDirectory]' . PHP_EOL;
+	echo 'Usage: ./data-convert path/to/heroesdata/x.xx.x.xxxxx [outputDirectory]' . PHP_EOL;
 	return;
 }
 $patchDir = rtrim($argv[1], '/') . '/';

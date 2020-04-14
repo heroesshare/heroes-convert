@@ -117,6 +117,7 @@ class Output extends Base
 		$return = [
 			'id'           => (int)$hero['id'],
 			'shortName'    => strtolower($hero['hyperlinkId']),
+			'hyperlinkId'  => $hero['hyperlinkId'],
 			'attributeId'  => $hero['attributeId'],
 			'cHeroId'      => $hero['cHeroId'],
 			'cUnitId'      => $hero['unitId'],
@@ -130,7 +131,7 @@ class Output extends Base
 			'tags'         => $hero['descriptors'] ?? [],
 		];
 
-		// Ability are categories are hyperLinkID and conditional subunit
+		// Ability are categories of hyperLinkID and conditional subunit
 		$abilities = [
 			$hero['hyperlinkId'] => $this->prepAbilities($hero['abilities'])
 		];
