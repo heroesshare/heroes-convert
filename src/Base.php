@@ -71,6 +71,7 @@ class Base
 		'Alexstrasza' => 'AlexstraszaDragon',
 		'Abathur'     => 'AbathurSymbiote',
 		'DVa'         => 'D.VaPilot',
+		'Deathwing'   => 'DeathwingFormSwitch',
 	];
 
 	/**
