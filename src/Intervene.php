@@ -180,7 +180,6 @@ class Intervene extends Base
 		$this->updateHeroAbility('0c414a', 'Artanis', ['hotkey' => null]); // ShieldOverload
 		$this->updateHeroAbility('c3bc73', 'Falstad', ['hotkey' => null]); // Tailwind
 		$this->updateHeroAbility('9109fa', 'Varian',  ['hotkey' => null]); // HeroicStrike
-		$this->updateHeroAbility('0bdf5b', 'Gazlowe', ['hotkey' => 'D']);  // Salvager
 		$this->updateHeroAbility('3e1bbf', 'Rexxar',  ['hotkey' => 'D']);  // MishaFocus		
 
 		/*** Specific heroes ***/
