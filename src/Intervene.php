@@ -54,6 +54,7 @@ class Intervene extends Base
 		'Greymane'    => [47, '1.15.6.40087'],
 		'Guldan'      => [54, '1.19.0.44468'],
 		'Hanzo'       => [75, '2.29.3.60339'],
+		'Hogger'      => [90, '2.52.0.81571'],
 		'Illidan'     => [7,  '0.1.1.00000'],
 		'Imperius'    => [85, '2.42.0.71449'],
 		'Jaina'       => [32, '0.7.1.33182'],
@@ -75,6 +76,7 @@ class Intervene extends Base
 		'MalGanis'    => [83, '2.39.0.69350'],
 		'Malthael'    => [68, '2.26.0.54339'],
 		'Medivh'      => [53, '1.18.4.43571'],
+		'Mei'         => [89, '2.51.0.80293'],
 		'Mephisto'    => [82, '2.37.0.67985'],
 		'Muradin'     => [10, '0.1.1.00000'],
 		'Murky'       => [26, '0.1.1.00000'],
@@ -179,7 +181,6 @@ class Intervene extends Base
 		$this->updateHeroAbility('0c414a', 'Artanis', ['hotkey' => null]); // ShieldOverload
 		$this->updateHeroAbility('c3bc73', 'Falstad', ['hotkey' => null]); // Tailwind
 		$this->updateHeroAbility('9109fa', 'Varian',  ['hotkey' => null]); // HeroicStrike
-		$this->updateHeroAbility('0bdf5b', 'Gazlowe', ['hotkey' => 'D']);  // Salvager
 		$this->updateHeroAbility('3e1bbf', 'Rexxar',  ['hotkey' => 'D']);  // MishaFocus		
 
 		/*** Specific heroes ***/

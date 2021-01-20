@@ -51,7 +51,7 @@ fi
 
 # remove apostrophes from filenames (mostly Kel'Thuzad)
 echo "[`date`] Removing apostrophes..."
-"$renamePath" "s/'//" "$outDir"/*.png
+"$renamePath" --force "s/'//" "$outDir"/*.png
 
 # verify status
 if [ $? -ne 0 ]; then

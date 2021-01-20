@@ -47,6 +47,7 @@ class Filter extends Base
 		'33434d' => 'Run and Gun', // Overkill
 		'f57681' => 'Minigun', // "Active"
 		'8e2bc8' => 'Holy Light', // https://github.com/HeroesToolChest/HeroesDataParser/issues/59
+		'2329af' => 'Skyfall',
 	];
 	
 	/**
